@@ -9,6 +9,15 @@ import { createRatingsCollection } from './collections/ratings.js'
 import { createRepliesCollection } from './collections/replies.js'
 import { createReviewsCollection } from './collections/reviews.js'
 import { sanitizePluginConfig } from './defaults.js'
+import { createDislikeEndpoint } from './endpoints/dislike.js'
+import { createDistributionEndpoint } from './endpoints/distribution.js'
+import { createFavouriteEndpoint } from './endpoints/favourite.js'
+import { createInteractionsEndpoint } from './endpoints/interactions.js'
+import { createLikeEndpoint } from './endpoints/like.js'
+import { createRateEndpoint } from './endpoints/rate.js'
+import { createReplyEndpoint, deleteReplyEndpoint } from './endpoints/reply.js'
+import { createReviewEndpoint } from './endpoints/review.js'
+import { createStatusEndpoint } from './endpoints/status.js'
 import { createAggregateFields } from './fields/aggregateFields.js'
 import { createJoinFields } from './fields/joinFields.js'
 import { createCascadeDelete } from './hooks/cascadeDelete.js'
@@ -107,7 +116,62 @@ export const payloadLfRs =
     if (!config.endpoints) {
       config.endpoints = []
     }
-    // TODO: Mount /api/lfrs/* endpoints
+    
+    config.endpoints.push(
+      {
+        handler: createLikeEndpoint(sanitized),
+        method: 'post',
+        path: '/lfrs/like',
+      },
+      {
+        handler: createFavouriteEndpoint(sanitized),
+        method: 'post',
+        path: '/lfrs/favourite',
+      },
+      {
+        handler: createRateEndpoint(sanitized),
+        method: 'post',
+        path: '/lfrs/rate',
+      },
+      {
+        handler: createReviewEndpoint(sanitized),
+        method: 'post',
+        path: '/lfrs/review',
+      },
+      {
+        handler: createReplyEndpoint(sanitized),
+        method: 'post',
+        path: '/lfrs/reply',
+      },
+      {
+        handler: deleteReplyEndpoint(sanitized),
+        method: 'delete',
+        path: '/lfrs/reply',
+      },
+      {
+        handler: createStatusEndpoint(sanitized),
+        method: 'get',
+        path: '/lfrs/status',
+      },
+      {
+        handler: createInteractionsEndpoint(sanitized),
+        method: 'get',
+        path: '/lfrs/interactions',
+      },
+      {
+        handler: createDistributionEndpoint(sanitized),
+        method: 'get',
+        path: '/lfrs/distribution',
+      }
+    )
+
+    if (sanitized.dislikesEnabled) {
+      config.endpoints.push({
+        handler: createDislikeEndpoint(sanitized),
+        method: 'post',
+        path: '/lfrs/dislike',
+      })
+    }
 
     // ── Phase 7: Admin UI components will be wired here ──────────────────────
     // TODO: Wire admin components (LfrsStatusWidget, ReviewModerationView)
