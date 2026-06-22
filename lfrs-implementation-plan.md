@@ -1034,43 +1034,43 @@ src/
 > **Files**: `components/*`, `exports/client.ts`
 > **Dependencies**: `react-rating` (peer dep)
 
-- [ ] Build `<LfrsRating>` — interactive star/icon rating component
-  - [ ] Integrate `react-rating` library for rendering
-  - [ ] Support half-star display via `step` config
-  - [ ] Support custom icons via `icon` config hint
-  - [ ] Display mode (read-only) and interactive mode
-  - [ ] Controlled component with `value` / `onChange` props
-- [ ] Build `<LfrsLikeDislike>` — like/dislike buttons with counts
-  - [ ] Show like count, optional dislike count
-  - [ ] Highlight active state (user already liked/disliked)
-  - [ ] Toggle on click with optimistic UI update
-  - [ ] Conditionally hide dislike button when feature is disabled
-- [ ] Build `<LfrsFavourite>` — favourite/bookmark toggle icon
-  - [ ] Active/inactive visual state
-  - [ ] Toggle on click with optimistic UI update
-- [ ] Build `<LfrsRatingSummary>` — rating breakdown with percentage bars
-  - [ ] Display average score with stars
-  - [ ] Show total ratings count
-  - [ ] Render per-score breakdown bars with percentages (Amazon-style)
-  - [ ] Fetches data from `GET /api/lfrs/distribution`
-- [ ] Build `<LfrsReviewsSection>` — full reviews experience
-  - [ ] `<LfrsComposeReview>` — compose/edit form with optional media upload
-  - [ ] `<LfrsReviewCard>` — single review with user info, score, body, media, date
-  - [ ] `<LfrsComposeReply>` — inline reply form
-  - [ ] `<LfrsReplyCard>` — single reply with user info, body, date
-  - [ ] Like/dislike buttons on individual reviews and replies
-  - [ ] Sort controls (newest, oldest, highest, lowest)
-  - [ ] Pagination / load more
-  - [ ] One-level-deep reply threading
-- [ ] Create `styles/lfrs.module.css` — shared styles with CSS custom properties for theming
-- [ ] Export all components from `exports/client.ts`
+- [x] Build `<LfrsRating>` — interactive star/icon rating component
+  - [x] Integrate `react-rating` library for rendering
+  - [x] Support half-star display via `step` config
+  - [x] Support custom icons via `icon` config hint
+  - [x] Display mode (read-only) and interactive mode
+  - [x] Controlled component with `value` / `onChange` props
+- [x] Build `<LfrsLikeDislike>` — like/dislike buttons with counts
+  - [x] Show like count, optional dislike count
+  - [x] Highlight active state (user already liked/disliked)
+  - [x] Toggle on click with optimistic UI update
+  - [x] Conditionally hide dislike button when feature is disabled
+- [x] Build `<LfrsFavourite>` — favourite/bookmark toggle icon
+  - [x] Active/inactive visual state
+  - [x] Toggle on click with optimistic UI update
+- [x] Build `<LfrsRatingSummary>` — rating breakdown with percentage bars
+  - [x] Display average score with stars
+  - [x] Show total ratings count
+  - [x] Render per-score breakdown bars with percentages (Amazon-style)
+  - [x] Fetches data from `GET /api/lfrs/distribution`
+- [x] Build `<LfrsReviewsSection>` — full reviews experience
+  - [x] `<LfrsComposeReview>` — compose/edit form with optional media upload
+  - [x] `<LfrsReviewCard>` — single review with user info, score, body, media, date
+  - [x] `<LfrsComposeReply>` — inline reply form
+  - [x] `<LfrsReplyCard>` — single reply with user info, body, date
+  - [x] Like/dislike buttons on individual reviews and replies
+  - [x] Sort controls (newest, oldest, highest, lowest)
+  - [x] Pagination / load more
+  - [x] One-level-deep reply threading
+- [x] Create `styles/lfrs.module.css` — shared styles with CSS custom properties for theming
+- [x] Export all components from `exports/client.ts`
 
 ### Phase 7: Admin UI Components *(Optional / Future)*
 > **Files**: `admin/*`, `exports/*`
 
-- [ ] Build `LfrsStatusWidget` — sidebar component showing live counts
-- [ ] Build `ReviewModerationView` — list view for pending reviews and replies
-- [ ] Wire components into plugin via `admin.components`
+- [x] Build `LfrsStatusWidget` — sidebar component showing live counts
+- [x] Build `ReviewModerationView` — list view for pending reviews and replies
+- [x] Wire components into plugin via `admin.components`
 
 ---
 

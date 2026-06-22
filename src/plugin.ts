@@ -174,7 +174,23 @@ export const payloadLfRs =
     }
 
     // ── Phase 7: Admin UI components will be wired here ──────────────────────
-    // TODO: Wire admin components (LfrsStatusWidget, ReviewModerationView)
+    if (!config.admin) {
+      config.admin = {}
+    }
+    if (!config.admin.components) {
+      config.admin.components = {}
+    }
+    if (!config.admin.components.views) {
+      config.admin.components.views = {}
+    }
+
+    if (sanitized.reviewModeration) {
+      config.admin.components.views.lfrsModeration = {
+        Component: 'payload-lf-rs/admin#ReviewModerationView',
+        path: '/lfrs-moderation',
+        exact: true,
+      } as any
+    }
 
     return config
   }
