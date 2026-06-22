@@ -82,7 +82,7 @@ For each feature (`likes`, `dislikes`, `favourites`, `ratings`, `reviews`, `repl
 ```typescript
 likes: async ({ req, targetCollection, targetDoc }) => {
   // Custom logic: e.g., only users who purchased this product can review it
-  return true;
+  return true
 }
 ```
 
@@ -138,6 +138,14 @@ Override the default slugs for the internal collections created by the plugin (`
 3. **Endpoints Created**: It registers REST endpoints under `/api/lfrs/...` to handle interactions (e.g., `/api/lfrs/like`, `/api/lfrs/rate`).
 4. **Admin UI**: Adds custom components and moderation views to the Payload Admin panel.
 
+### Interactions Status Widget
+
+For each target collection where LFRs features are enabled, the plugin injects a custom **Interactions Status Widget** into the document's edit view sidebar. This widget displays an at-a-glance summary of all aggregated interactions for that document (such as total likes, total reviews, and average rating).
+
+### Review Moderation View
+
+If `reviewModeration: true` is enabled in your configuration, the plugin provides a dedicated **Review Moderation Queue** view in the Admin panel. Accessible via `/admin/lfrs-moderation`, this dashboard allows administrators to efficiently review, approve, or reject pending user reviews and replies before they are publicly displayed.
+
 ## API Endpoints
 
 The plugin exposes several endpoints for interacting with the LFRs features from your frontend:
@@ -153,7 +161,83 @@ The plugin exposes several endpoints for interacting with the LFRs features from
 - `GET /api/lfrs/interactions` - Get paginated lists of interactions.
 - `GET /api/lfrs/distribution` - Get the rating distribution for a document.
 
-*Authentication is required for `POST` and `DELETE` endpoints.*
+_Authentication is required for `POST` and `DELETE` endpoints._
+
+## Frontend UI Components
+
+The plugin provides a suite of ready-to-use React components for your frontend application. These components are exported via `payload-lf-rs/client` and are built as client components (`"use client"`) to handle user interactions and optimistic UI updates seamlessly.
+
+### Available Components
+
+- **`LfrsLikeDislike`**: A toggleable thumbs-up/thumbs-down widget displaying current counts.
+- **`LfrsFavourite`**: A bookmark/favorite button for saving documents.
+- **`LfrsRating`**: An interactive star rating component for users to submit a score.
+- **`LfrsRatingSummary`**: A visual summary showing the average rating and score distribution.
+- **`LfrsComposeReview` / `LfrsComposeReply`**: Forms for submitting text reviews and nested replies.
+- **`LfrsReviewCard` / `LfrsReplyCard`**: Display components for rendering individual reviews and replies.
+- **`LfrsReviewsSection`**: A complete, integrated reviews area combining the summary, compose form, and a list of reviews.
+
+### Example Usage
+
+```tsx
+import { LfrsLikeDislike, LfrsRating } from 'payload-lf-rs/client'
+
+export function PostDetails({ post }) {
+  return (
+    <div>
+      <h1>{post.title}</h1>
+
+      {/* Like / Dislike Toggle */}
+      <LfrsLikeDislike
+        targetCollection="posts"
+        targetDoc={post.id}
+        initialLikesCount={post.lfrs?.likesCount || 0}
+        initialLiked={false} // Optionally pass initial state from server
+      />
+
+      {/* 5-Star Rating */}
+      <LfrsRating targetCollection="posts" targetDoc={post.id} maxRating={5} />
+    </div>
+  )
+}
+```
+
+## Building Custom UIs (Headless Usage)
+
+The plugin is designed to be completely framework-agnostic. While we provide React components for convenience, you can build your own custom user interfaces in any framework (Vue, Svelte, Angular, React Native, or vanilla JavaScript) by directly interacting with the plugin's REST API.
+
+### Custom Component Example
+
+Here is an example of how you might build a custom "Like" interaction in vanilla JavaScript:
+
+```javascript
+async function toggleLike(targetCollection, targetDocId) {
+  try {
+    const response = await fetch('/api/lfrs/like', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer YOUR_TOKEN' // If required
+      },
+      body: JSON.stringify({
+        collection: targetCollection,
+        id: targetDocId,
+      }),
+    })
+
+    if (!response.ok) throw new Error('Failed to toggle like')
+
+    const data = await response.json()
+    console.log(`Liked: ${data.liked}, Total Likes: ${data.likesCount}`)
+
+    // Update your custom UI state here...
+  } catch (error) {
+    console.error(error)
+  }
+}
+```
+
+You can similarly use the `GET /api/lfrs/status` endpoint to fetch the current user's interaction state when a page loads, and map other interactions (Favorites, Ratings, Reviews) to their respective endpoints.
 
 ## Architecture & Developer Guide
 
@@ -163,26 +247,13 @@ If you are reviewing, contributing to, or debugging the plugin, here's an overvi
 
 - `src/plugin.ts`: The main entry point. It accepts user configuration, sanitizes it (applying defaults), and injects the collections, fields, and endpoints into the Payload config.
 - `src/collections/`: Contains the definitions for the plugin-managed collections (`likes`, `dislikes`, `favourites`, `ratings`, `reviews`, `replies`). These store the actual user interactions.
-- `src/fields/`: 
+- `src/fields/`:
   - `aggregateFields.ts`: Generates the `lfrs` field group (e.g., `lfrs.likesCount`, `lfrs.averageRating`) that gets injected into target collections.
   - `joinFields.ts`: Injects Payload Join fields so administrators can see related LFRs documents directly from the target document's admin UI.
 - `src/endpoints/`: The REST API implementations. These handle incoming user requests, enforce access control, and perform the database operations.
 - `src/hooks/`: Contains Payload lifecycle hooks. E.g., `cascadeDelete.ts` ensures that when a target document is deleted, all associated interactions are also removed to prevent orphaned records.
 - `src/admin/`: React components for Payload's Admin panel. Includes status widgets and the Review Moderation view.
 - `src/types.ts`: TypeScript interfaces and types for configuration, internal sanitized config, and feature access.
-
-### Aggregation Mechanism
-
-Instead of querying all interactions on the fly, the plugin uses an aggregation strategy:
-1. When a user interacts (e.g., likes a post), an endpoint (e.g., `src/endpoints/like.ts`) processes the request.
-2. The endpoint creates or deletes the interaction record in the corresponding collection (e.g., `lfrs_likes`).
-3. The endpoint then recalculates the totals and updates the target document's `lfrs` aggregate fields.
-
-This ensures high performance when reading documents, as the aggregated counts and averages are stored directly on the document itself.
-
-### Access Control
-
-Access checks are performed centrally in the endpoints. If a user provides a custom `Function` for access control, the endpoint awaits its result before proceeding with the database transaction.
 
 ## License
 
