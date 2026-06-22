@@ -82,6 +82,9 @@ export function createAggregateFields(
       readOnly: true,
       // Always show in sidebar (even when empty — keeps schema consistent)
       condition: () => true,
+      components: {
+        Field: 'payload-lf-rs/admin#LfrsStatusWidget',
+      },
     },
     fields: aggregateSubFields.length > 0
       ? aggregateSubFields
