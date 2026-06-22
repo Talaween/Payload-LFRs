@@ -1,218 +1,189 @@
-# Payload Plugin Template
+# Payload LFRs Plugin
 
-A template repo to create a [Payload CMS](https://payloadcms.com) plugin.
+A comprehensive plugin for [Payload CMS 3.x](https://payloadcms.com) that adds **Likes**, **Favourites**, **Ratings**, and **Reviews** (LFRs) capabilities to your existing collections.
 
-Payload is built with a robust infrastructure intended to support Plugins with ease. This provides a simple, modular, and reusable way for developers to extend the core capabilities of Payload.
+## Features
 
-To build your own Payload plugin, all you need is:
+- **Likes & Dislikes**: Allow users to like or dislike documents. Dislikes are mutually exclusive with likes.
+- **Favourites**: Enable users to save documents to their favourites.
+- **Ratings**: Add customizable rating systems (e.g., 5-star, 10-point scale, half-stars).
+- **Reviews & Replies**: Let users write reviews and others to reply to them.
+- **Media Uploads**: Support for attaching images or videos to reviews.
+- **Fine-grained Access Control**: Configure who can interact with each feature per collection (e.g., specific roles, custom logic).
+- **Automated Aggregation**: Automatically calculates and injects total likes, average ratings, and interaction states into your documents.
+- **Review Moderation**: Built-in admin view to moderate pending reviews.
 
-- An understanding of the basic Payload concepts
-- And some JavaScript/Typescript experience
+## Installation
 
-## Background
+```bash
+npm install payload-lf-rs
+# or
+pnpm add payload-lf-rs
+# or
+yarn add payload-lf-rs
+```
 
-Here is a short recap on how to integrate plugins with Payload, to learn more visit the [plugin overview page](https://payloadcms.com/docs/plugins/overview).
+## Basic Usage
 
-### How to install a plugin
+Add the plugin to your Payload configuration:
 
-To install any plugin, simply add it to your payload.config() in the Plugin array.
+```typescript
+import { buildConfig } from 'payload'
+import { payloadLfRs } from 'payload-lf-rs'
 
-```ts
-import myPlugin from 'my-plugin'
-
-export const config = buildConfig({
+export default buildConfig({
+  // ... your existing config
   plugins: [
-    // You can pass options to the plugin
-    myPlugin({
-      enabled: true,
+    payloadLfRs({
+      collections: {
+        // Enable LFRs features on the 'posts' collection
+        posts: {
+          likes: true,
+          favourites: true,
+          ratings: true,
+          reviews: true,
+        },
+      },
     }),
   ],
 })
 ```
 
-### Initialization
+## Configuration
 
-The initialization process goes in the following order:
+The `payloadLfRs` plugin accepts a configuration object with the following properties:
 
-1. Incoming config is validated
-2. **Plugins execute**
-3. Default options are integrated
-4. Sanitization cleans and validates data
-5. Final config gets initialized
+### `collections` (Required)
 
-## Building the Plugin
+A map of collection slugs to enable LFRs features on. For each collection, you can enable specific features and configure access control.
 
-When you build a plugin, you are purely building a feature for your project and then abstracting it outside of the project.
-
-### Template Files
-
-In the Payload [plugin template](https://github.com/payloadcms/payload/tree/3.x/templates/plugin), you will see a common file structure that is used across all plugins:
-
-1. root folder
-2. /src folder
-3. /dev folder
-
-#### Root
-
-In the root folder, you will see various files that relate to the configuration of the plugin. We set up our environment in a similar manner in Payload core and across other projects, so hopefully these will look familiar:
-
-- **README**.md\* - This contains instructions on how to use the template. When you are ready, update this to contain instructions on how to use your Plugin.
-- **package**.json\* - Contains necessary scripts and dependencies. Overwrite the metadata in this file to describe your Plugin.
-- .**eslint**.config.js - Eslint configuration for reporting on problematic patterns.
-- .**gitignore** - List specific untracked files to omit from Git.
-- .**prettierrc**.json - Configuration for Prettier code formatting.
-- **tsconfig**.json - Configures the compiler options for TypeScript
-- .**swcrc** - Configuration for SWC, a fast compiler that transpiles and bundles TypeScript.
-- **vitest**.config.js - Config file for Vitest, defining how tests are run and how modules are resolved
-
-**IMPORTANT\***: You will need to modify these files.
-
-#### Dev
-
-In the dev folder, you’ll find a basic payload project, created with `npx create-payload-app` and the blank template.
-
-**IMPORTANT**: Make a copy of the `.env.example` file and rename it to `.env`. Update the `DATABASE_URL` to match the database you are using and your plugin name. Update `PAYLOAD_SECRET` to a unique string.
-**You will not be able to run `pnpm/yarn dev` until you have created this `.env` file.**
-
-`myPlugin` has already been added to the `payload.config()` file in this project.
-
-```ts
-plugins: [
-  myPlugin({
-    collections: {
-      posts: true,
-    },
-  }),
-]
-```
-
-Later when you rename the plugin or add additional options, **make sure to update it here**.
-
-You may wish to add collections or expand the test project depending on the purpose of your plugin. Just make sure to keep this dev environment as simplified as possible - users should be able to install your plugin without additional configuration required.
-
-When you’re ready to start development, initiate the project with `pnpm/npm/yarn dev` and pull up [http://localhost:3000](http://localhost:3000) in your browser.
-
-#### Src
-
-Now that we have our environment setup and we have a dev project ready to - it’s time to build the plugin!
-
-**index.ts**
-
-The essence of a Payload plugin is simply to extend the payload config - and that is exactly what we are doing in this file.
-
-```ts
-export const myPlugin =
-  (pluginOptions: MyPluginConfig) =>
-  (config: Config): Config => {
-    // do cool stuff with the config here
-
-    return config
+```typescript
+collections: {
+  posts: {
+    likes: true, // Enable likes for any authenticated user
+    dislikes: false, // Disabled
+    favourites: ['admin', 'subscriber'], // Only specific roles can favourite
+    ratings: true,
+    reviews: true,
+    replies: true, // Enable replies to reviews
   }
-```
-
-First, we receive the existing payload config along with any plugin options.
-
-From here, you can extend the config as you wish.
-
-Finally, you return the config and that is it!
-
-##### Spread Syntax
-
-Spread syntax (or the spread operator) is a feature in JavaScript that uses the dot notation **(...)** to spread elements from arrays, strings, or objects into various contexts.
-
-We are going to use spread syntax to allow us to add data to existing arrays without losing the existing data. It is crucial to spread the existing data correctly – else this can cause adverse behavior and conflicts with Payload config and other plugins.
-
-Let’s say you want to build a plugin that adds a new collection:
-
-```ts
-config.collections = [
-  ...(config.collections || []),
-  // Add additional collections here
-]
-```
-
-First we spread the `config.collections` to ensure that we don’t lose the existing collections, then you can add any additional collections just as you would in a regular payload config.
-
-This same logic is applied to other properties like admin, hooks, globals:
-
-```ts
-config.globals = [
-  ...(config.globals || []),
-  // Add additional globals here
-]
-
-config.hooks = {
-  ...(incomingConfig.hooks || {}),
-  // Add additional hooks here
 }
 ```
 
-Some properties will be slightly different to extend, for instance the onInit property:
+#### Access Control
 
-```ts
-import { onInitExtension } from './onInitExtension' // example file
+For each feature (`likes`, `dislikes`, `favourites`, `ratings`, `reviews`, `replies`), you can provide:
 
-config.onInit = async (payload) => {
-  if (incomingConfig.onInit) await incomingConfig.onInit(payload)
-  // Add additional onInit code by defining an onInitExtension function
-  onInitExtension(pluginOptions, payload)
+- `true`: Any authenticated user can use the feature (default if the feature key is omitted but the feature is mentioned, depending on implementation/type defaults).
+- `false`: Feature disabled for this collection.
+- `string[]`: Only users whose `roles` array includes at least one of these roles can use the feature.
+- `Function`: A custom async function receiving the request and target document. Return `true` to allow, `false` to deny.
+
+```typescript
+likes: async ({ req, targetCollection, targetDoc }) => {
+  // Custom logic: e.g., only users who purchased this product can review it
+  return true;
 }
 ```
 
-If you wish to add to the onInit, you must include the **async/await**. We don’t use spread syntax in this case, instead you must await the existing `onInit` before running additional functionality.
+### `rating`
 
-In the template, we have stubbed out some addition `onInit` actions that seeds in a document to the `plugin-collection`, you can use this as a base point to add more actions - and if not needed, feel free to delete it.
+Configure the rating system (default: 5-star, whole numbers).
 
-##### Types.ts
-
-If your plugin has options, you should define and provide types for these options.
-
-```ts
-export type MyPluginConfig = {
-  /**
-   * List of collections to add a custom field
-   */
-  collections?: Partial<Record<CollectionSlug, true>>
-  /**
-   * Disable the plugin
-   */
-  disabled?: boolean
+```typescript
+rating: {
+  max: 5,        // Maximum rating value (default: 5)
+  step: 0.5,     // Step increment, e.g., 0.5 for half-stars (default: 1)
+  icon: 'star',  // Icon identifier hint for frontend (default: 'star')
 }
 ```
 
-If possible, include JSDoc comments to describe the options and their types. This allows a developer to see details about the options in their editor.
+### `reviewMedia`
 
-##### Testing
+Allow users to attach media to their reviews. **Note:** You must provide the slug of an existing upload-enabled collection.
 
-Having a test suite for your plugin is essential to ensure quality and stability. **Vitest** is a fast, modern testing framework that works seamlessly with Vite and supports TypeScript out of the box.
-
-Vitest organizes tests into test suites and cases, similar to other testing frameworks. We recommend creating individual tests based on the expected behavior of your plugin from start to finish.
-
-Writing tests with Vitest is very straightforward, and you can learn more about how it works in the [Vitest documentation.](https://vitest.dev/)
-
-For this template, we stubbed out `int.spec.ts` in the `dev` folder where you can write your tests.
-
-```ts
-describe('Plugin tests', () => {
-  // Create tests to ensure expected behavior from the plugin
-  it('some condition that must be met', () => {
-   // Write your test logic here
-   expect(...)
-  })
-})
+```typescript
+reviewMedia: {
+  uploadCollection: 'media', // REQUIRED: an existing upload collection in your payload config
+  allowedMimeTypes: ['image/jpeg', 'image/png'], // default: ['image/*']
+  maxFiles: 3, // default: 5
+  maxFileSize: 5 * 1024 * 1024, // 5MB limit
+}
 ```
 
-## Best practices
+### `reviewModeration`
 
-With this tutorial and the plugin template, you should have everything you need to start building your own plugin.
-In addition to the setup, here are other best practices aim we follow:
+Set to `true` to require reviews to be approved before they are publicly visible (default: `false`). This also adds a dedicated Review Moderation view in the Admin panel.
 
-- **Providing an enable / disable option:** For a better user experience, provide a way to disable the plugin without uninstalling it. This is especially important if your plugin adds additional webpack aliases, this will allow you to still let the webpack run to prevent errors.
-- **Include tests in your GitHub CI workflow**: If you’ve configured tests for your package, integrate them into your workflow to run the tests each time you commit to the plugin repository. Learn more about [how to configure tests into your GitHub CI workflow.](https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs)
-- **Publish your finished plugin to NPM**: The best way to share and allow others to use your plugin once it is complete is to publish an NPM package. This process is straightforward and well documented, find out more [creating and publishing a NPM package here.](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages/).
-- **Add payload-plugin topic tag**: Apply the tag **payload-plugin **to your GitHub repository. This will boost the visibility of your plugin and ensure it gets listed with [existing payload plugins](https://github.com/topics/payload-plugin).
-- **Use [Semantic Versioning](https://semver.org/) (SemVar)** - With the SemVar system you release version numbers that reflect the nature of changes (major, minor, patch). Ensure all major versions reference their Payload compatibility.
+```typescript
+reviewModeration: true
+```
 
-# Questions
+### `usersCollectionSlug`
 
-Please contact [Payload](mailto:dev@payloadcms.com) with any questions about using this plugin template.
+The slug of your users collection for authentication (default: `'users'`).
+
+### `adminGroup`
+
+The group name under which the LFRs collections will appear in the Admin UI (default: `'LFRs'`).
+
+### `collectionSlugs`
+
+Override the default slugs for the internal collections created by the plugin (`likes`, `dislikes`, `favourites`, `ratings`, `reviews`, `replies`).
+
+## How It Works
+
+1. **Collections Added**: The plugin automatically creates collections to store interactions (e.g. `lfrs_likes`, `lfrs_reviews`).
+2. **Fields Injected**: It injects an `lfrs` field group into your target collections, containing aggregate data (e.g., `lfrs.likesCount`, `lfrs.averageRating`).
+3. **Endpoints Created**: It registers REST endpoints under `/api/lfrs/...` to handle interactions (e.g., `/api/lfrs/like`, `/api/lfrs/rate`).
+4. **Admin UI**: Adds custom components and moderation views to the Payload Admin panel.
+
+## API Endpoints
+
+The plugin exposes several endpoints for interacting with the LFRs features from your frontend:
+
+- `POST /api/lfrs/like`
+- `POST /api/lfrs/dislike`
+- `POST /api/lfrs/favourite`
+- `POST /api/lfrs/rate`
+- `POST /api/lfrs/review`
+- `POST /api/lfrs/reply`
+- `DELETE /api/lfrs/reply`
+- `GET /api/lfrs/status` - Get the current user's interaction status for a document.
+- `GET /api/lfrs/interactions` - Get paginated lists of interactions.
+- `GET /api/lfrs/distribution` - Get the rating distribution for a document.
+
+*Authentication is required for `POST` and `DELETE` endpoints.*
+
+## Architecture & Developer Guide
+
+If you are reviewing, contributing to, or debugging the plugin, here's an overview of the codebase structure and internal architecture.
+
+### Code Organization
+
+- `src/plugin.ts`: The main entry point. It accepts user configuration, sanitizes it (applying defaults), and injects the collections, fields, and endpoints into the Payload config.
+- `src/collections/`: Contains the definitions for the plugin-managed collections (`likes`, `dislikes`, `favourites`, `ratings`, `reviews`, `replies`). These store the actual user interactions.
+- `src/fields/`: 
+  - `aggregateFields.ts`: Generates the `lfrs` field group (e.g., `lfrs.likesCount`, `lfrs.averageRating`) that gets injected into target collections.
+  - `joinFields.ts`: Injects Payload Join fields so administrators can see related LFRs documents directly from the target document's admin UI.
+- `src/endpoints/`: The REST API implementations. These handle incoming user requests, enforce access control, and perform the database operations.
+- `src/hooks/`: Contains Payload lifecycle hooks. E.g., `cascadeDelete.ts` ensures that when a target document is deleted, all associated interactions are also removed to prevent orphaned records.
+- `src/admin/`: React components for Payload's Admin panel. Includes status widgets and the Review Moderation view.
+- `src/types.ts`: TypeScript interfaces and types for configuration, internal sanitized config, and feature access.
+
+### Aggregation Mechanism
+
+Instead of querying all interactions on the fly, the plugin uses an aggregation strategy:
+1. When a user interacts (e.g., likes a post), an endpoint (e.g., `src/endpoints/like.ts`) processes the request.
+2. The endpoint creates or deletes the interaction record in the corresponding collection (e.g., `lfrs_likes`).
+3. The endpoint then recalculates the totals and updates the target document's `lfrs` aggregate fields.
+
+This ensures high performance when reading documents, as the aggregated counts and averages are stored directly on the document itself.
+
+### Access Control
+
+Access checks are performed centrally in the endpoints. If a user provides a custom `Function` for access control, the endpoint awaits its result before proceeding with the database transaction.
+
+## License
+
+MIT
