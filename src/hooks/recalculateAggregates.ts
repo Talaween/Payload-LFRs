@@ -1,6 +1,7 @@
 import type {
   CollectionAfterChangeHook,
   CollectionAfterDeleteHook,
+  Where,
 } from 'payload'
 
 import type { SanitizedLfrsConfig } from '../types.js'
@@ -39,53 +40,33 @@ async function recalculate(args: {
     targetDoc: { equals: targetDoc },
   }
 
-  // Count likes
-  const likesResult = await req.payload.count({
-    collection: config.collectionSlugs.likes,
-    req,
-    where: baseWhere,
-  })
-  lfrs.likesCount = likesResult.totalDocs
+  const reviewsWhere: Where = { and: [{ targetCollection: { equals: targetCollection } }, { targetDoc: { equals: targetDoc } }] }
+  if (config.reviewModeration) {
+    if (Array.isArray(reviewsWhere.and)) {
+      reviewsWhere.and.push({ status: { equals: 'approved' } })
+    }
+  }
 
-  // Count dislikes (only if dislikes are enabled globally)
-  if (config.dislikesEnabled) {
-    const dislikesResult = await req.payload.count({
-      collection: config.collectionSlugs.dislikes,
-      req,
-      where: baseWhere,
-    })
+  // Execute queries concurrently for better performance
+  const [
+    likesResult,
+    dislikesResult,
+    favouritesResult,
+    ratingsResult,
+    reviewsResult,
+  ] = await Promise.all([
+    req.payload.count({ collection: config.collectionSlugs.likes, req, where: baseWhere }),
+    config.dislikesEnabled ? req.payload.count({ collection: config.collectionSlugs.dislikes, req, where: baseWhere }) : Promise.resolve(null),
+    req.payload.count({ collection: config.collectionSlugs.favourites, req, where: baseWhere }),
+    req.payload.find({ collection: config.collectionSlugs.ratings, depth: 0, limit: 0, req, where: baseWhere }),
+    req.payload.find({ collection: config.collectionSlugs.reviews, depth: 0, limit: 0, req, where: reviewsWhere }),
+  ])
+
+  lfrs.likesCount = likesResult.totalDocs
+  if (dislikesResult) {
     lfrs.dislikesCount = dislikesResult.totalDocs
   }
-
-  // Count favourites
-  const favouritesResult = await req.payload.count({
-    collection: config.collectionSlugs.favourites,
-    req,
-    where: baseWhere,
-  })
   lfrs.favouritesCount = favouritesResult.totalDocs
-
-  // Count and average ratings (from both standalone ratings and approved reviews)
-  const ratingsResult = await req.payload.find({
-    collection: config.collectionSlugs.ratings,
-    depth: 0,
-    limit: 0,
-    req,
-    where: baseWhere,
-  })
-  
-  const reviewsWhere: any = { and: [{ targetCollection: { equals: targetCollection } }, { targetDoc: { equals: targetDoc } }] }
-  if (config.reviewModeration) {
-    reviewsWhere.and.push({ status: { equals: 'approved' } })
-  }
-  
-  const reviewsResult = await req.payload.find({
-    collection: config.collectionSlugs.reviews,
-    depth: 0,
-    limit: 0,
-    req,
-    where: reviewsWhere,
-  })
 
   
   // Collect scores from both

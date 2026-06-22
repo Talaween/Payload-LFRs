@@ -98,6 +98,7 @@ export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
       </div>
 
       <input
+        aria-label="Review title"
         className={styles.composeInput}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Review title (optional)"
@@ -106,6 +107,7 @@ export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
       />
 
       <textarea
+        aria-label="Review body"
         className={styles.composeTextarea}
         onChange={(e) => setBody(e.target.value)}
         placeholder="What did you think?"
