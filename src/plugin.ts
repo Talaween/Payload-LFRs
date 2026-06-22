@@ -187,8 +187,8 @@ export const payloadLfRs =
     if (sanitized.reviewModeration) {
       config.admin.components.views.lfrsModeration = {
         Component: 'payload-lf-rs/admin#ReviewModerationView',
-        path: '/lfrs-moderation',
         exact: true,
+        path: '/lfrs-moderation',
       } as any
     }
 

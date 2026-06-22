@@ -67,8 +67,9 @@ export function createValidateReviewMedia(
       const filesize = uploadDoc.filesize as number
       if (filesize && filesize > maxFileSize) {
         const maxSizeMB = (maxFileSize / (1024 * 1024)).toFixed(1)
+        const filename = uploadDoc.filename ? String(uploadDoc.filename) : String(fileId)
         throw new APIError(
-          `File "${String(uploadDoc.filename || fileId)}" exceeds the maximum size of ${maxSizeMB} MB`,
+          `File "${filename}" exceeds the maximum size of ${maxSizeMB} MB`,
           400,
         )
       }

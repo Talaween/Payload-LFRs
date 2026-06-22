@@ -57,6 +57,7 @@ export const LfrsComposeReply: React.FC<LfrsComposeReplyProps> = ({
       {error && <div style={{ color: 'var(--lfrs-dislike-active)', fontSize: '14px' }}>{error}</div>}
 
       <textarea
+        aria-label="Reply body"
         className={styles.composeTextarea}
         onChange={(e) => setBody(e.target.value)}
         placeholder="Write a reply..."
