@@ -174,12 +174,21 @@ a {
 
 /* LFRs Plugin overrides for dark theme */
 :root {
+  /* Core colors for toggle buttons (like/dislike/favourite) */
+  --lfrs-text: #e2e8f0;
+  --lfrs-text-muted: #94a3b8;
+  --lfrs-bg: #15151e;
+  --lfrs-bg-muted: #334155;
+  --lfrs-border: #2d2d3d;
+  --lfrs-radius: 6px;
   /* Light grey for empty bar/inactive stars */
-  --lfrs-bg-muted: #334155; 
   --lfrs-star-inactive: #475569;
   /* Yellow for filled stars/bars and favourite */
-  --lfrs-star-active: #facc15; 
+  --lfrs-star-active: #facc15;
   --lfrs-favourite-active: #facc15;
+  /* Like/dislike active colors */
+  --lfrs-like-active: #60a5fa;
+  --lfrs-dislike-active: #f87171;
 }
 
 .lfrs-container {

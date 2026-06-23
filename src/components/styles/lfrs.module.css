@@ -68,19 +68,20 @@
 .toggleButton svg {
   width: 18px;
   height: 18px;
-  fill: currentColor;
+  stroke: currentColor;
+  fill: none;
 }
 
 .likeActive {
   color: var(--lfrs-like-active);
   border-color: var(--lfrs-like-active);
-  background: rgba(0, 102, 204, 0.05);
+  background: rgba(96, 165, 250, 0.1);
 }
 
 .dislikeActive {
   color: var(--lfrs-dislike-active);
   border-color: var(--lfrs-dislike-active);
-  background: rgba(204, 0, 0, 0.05);
+  background: rgba(248, 113, 113, 0.1);
 }
 
 .favouriteActive {

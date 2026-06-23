@@ -13,19 +13,38 @@ export interface LfrsLikeDislikeProps {
   initialLiked?: boolean
   initialLikesCount?: number
   onAuthError?: () => void
-  onToggle?: (state: { disliked: boolean; dislikesCount: number; liked: boolean; likesCount: number }) => void
+  onToggle?: (state: {
+    disliked: boolean
+    dislikesCount: number
+    liked: boolean
+    likesCount: number
+  }) => void
   targetCollection: string
   targetDoc: string
 }
 
 const ThumbsUpIcon = () => (
-  <svg viewBox="0 0 24 24">
+  <svg
+    fill="none"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+  >
     <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
   </svg>
 )
 
 const ThumbsDownIcon = () => (
-  <svg viewBox="0 0 24 24">
+  <svg
+    fill="none"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+  >
     <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3" />
   </svg>
 )
@@ -53,7 +72,9 @@ export const LfrsLikeDislike: React.FC<LfrsLikeDislikeProps> = ({
     if (initialLiked === undefined || initialDisliked === undefined) {
       fetch(`${apiBase}/lfrs/status?collection=${targetCollection}&id=${targetDoc}`)
         .then((res) => {
-          if (res.ok) {return res.json()}
+          if (res.ok) {
+            return res.json()
+          }
           return null
         })
         .then((data) => {
@@ -71,16 +92,18 @@ export const LfrsLikeDislike: React.FC<LfrsLikeDislikeProps> = ({
   }, [apiBase, initialLiked, initialDisliked, targetCollection, targetDoc])
 
   const handleToggle = async (type: 'dislike' | 'like') => {
-    if (loading) {return}
-    
+    if (loading) {
+      return
+    }
+
     // Optimistic update
     const previousState = { disliked, dislikesCount, liked, likesCount }
-    
+
     let newLiked = liked
     let newDisliked = disliked
     let newLikesCount = likesCount
     let newDislikesCount = dislikesCount
-    
+
     if (type === 'like') {
       newLiked = !liked
       newLikesCount += newLiked ? 1 : -1
@@ -96,12 +119,12 @@ export const LfrsLikeDislike: React.FC<LfrsLikeDislikeProps> = ({
         newLikesCount -= 1
       }
     }
-    
+
     setLiked(newLiked)
     setDisliked(newDisliked)
     setLikesCount(newLikesCount)
     setDislikesCount(newDislikesCount)
-    
+
     try {
       setLoading(true)
       const res = await fetch(`${apiBase}/lfrs/${type}`, {
@@ -109,16 +132,17 @@ export const LfrsLikeDislike: React.FC<LfrsLikeDislikeProps> = ({
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
       })
-      
+
       if (!res.ok) {
+        console.error('[LFRS-CLIENT] API error, status:', res.status)
         if (res.status === 401 && onAuthError) {
           onAuthError()
         }
         throw new Error('API Error')
       }
-      
+
       const data = await res.json()
-      
+
       // Sync with real data
       setLiked(data.liked ?? false)
       setDisliked(data.disliked ?? false)
@@ -126,14 +150,13 @@ export const LfrsLikeDislike: React.FC<LfrsLikeDislikeProps> = ({
       if (data.dislikesCount !== undefined) {
         setDislikesCount(data.dislikesCount)
       }
-      
-      onToggle?.({ 
-        disliked: data.disliked ?? false, 
-        dislikesCount: data.dislikesCount ?? 0, 
-        liked: data.liked ?? false, 
-        likesCount: data.likesCount ?? 0 
+
+      onToggle?.({
+        disliked: data.disliked ?? false,
+        dislikesCount: data.dislikesCount ?? 0,
+        liked: data.liked ?? false,
+        likesCount: data.likesCount ?? 0,
       })
-      
     } catch (_e) {
       // Revert on error
       setLiked(previousState.liked)
@@ -146,7 +169,10 @@ export const LfrsLikeDislike: React.FC<LfrsLikeDislikeProps> = ({
   }
 
   return (
-    <div className={`${styles.likeDislikeGroup} ${className}`} style={{ display: 'flex', gap: '8px' }}>
+    <div
+      className={`${styles.likeDislikeGroup} ${className}`}
+      style={{ display: 'flex', gap: '8px' }}
+    >
       <button
         aria-label={liked ? 'Unlike' : 'Like'}
         className={`${styles.toggleButton} ${liked ? styles.likeActive : ''}`}

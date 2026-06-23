@@ -118,26 +118,42 @@ export const createDislikeEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHa
         disliked = true
       }
 
-      // Re-fetch target doc to get updated counts
-      const updatedDoc = await req.payload.findByID({
-        id,
-        collection,
-        overrideAccess: true,
-        req,
-      })
+      // Directly count interactions instead of relying on re-fetched aggregate fields,
+      // which may be stale if the recalculate hooks haven't fully committed yet.
+      const [dislikesCountResult, likesCountResult] = await Promise.all([
+        req.payload.count({
+          collection: sanitized.collectionSlugs.dislikes,
+          overrideAccess: true,
+          req,
+          where: {
+            and: [{ targetCollection: { equals: collection } }, { targetDoc: { equals: id } }],
+          },
+        }),
+        enabledFeatures.has('likes')
+          ? req.payload.count({
+              collection: sanitized.collectionSlugs.likes,
+              overrideAccess: true,
+              req,
+              where: {
+                and: [{ targetCollection: { equals: collection } }, { targetDoc: { equals: id } }],
+              },
+            })
+          : Promise.resolve(null),
+      ])
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const responseData: any = {
         disliked,
-        dislikesCount: updatedDoc.lfrs?.dislikesCount || 0,
+        dislikesCount: dislikesCountResult.totalDocs,
       }
 
-      if (enabledFeatures.has('likes')) {
-        responseData.likesCount = updatedDoc.lfrs?.likesCount || 0
+      if (likesCountResult) {
+        responseData.liked = false
+        responseData.likesCount = likesCountResult.totalDocs
       }
 
       return Response.json(responseData)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const status = err.status || 500
       return Response.json({ error: err.message || 'Internal Server Error' }, { status })

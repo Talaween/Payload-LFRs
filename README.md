@@ -228,7 +228,6 @@ async function toggleLike(targetCollection, targetDocId) {
     if (!response.ok) throw new Error('Failed to toggle like')
 
     const data = await response.json()
-    console.log(`Liked: ${data.liked}, Total Likes: ${data.likesCount}`)
 
     // Update your custom UI state here...
   } catch (error) {

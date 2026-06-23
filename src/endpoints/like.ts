@@ -118,27 +118,44 @@ export const createLikeEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHandl
         liked = true
       }
 
-      // Re-fetch target doc to get updated counts
-      const updatedDoc = await req.payload.findByID({
-        id,
-        collection,
-        overrideAccess: true,
-        req,
-      })
+      // Directly count interactions instead of relying on re-fetched aggregate fields,
+      // which may be stale if the recalculate hooks haven't fully committed yet.
+      const [likesCountResult, dislikesCountResult] = await Promise.all([
+        req.payload.count({
+          collection: sanitized.collectionSlugs.likes,
+          overrideAccess: true,
+          req,
+          where: {
+            and: [{ targetCollection: { equals: collection } }, { targetDoc: { equals: id } }],
+          },
+        }),
+        enabledFeatures.has('dislikes')
+          ? req.payload.count({
+              collection: sanitized.collectionSlugs.dislikes,
+              overrideAccess: true,
+              req,
+              where: {
+                and: [{ targetCollection: { equals: collection } }, { targetDoc: { equals: id } }],
+              },
+            })
+          : Promise.resolve(null),
+      ])
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const responseData: any = {
         liked,
-        likesCount: updatedDoc.lfrs?.likesCount || 0,
+        likesCount: likesCountResult.totalDocs,
       }
 
-      if (enabledFeatures.has('dislikes')) {
-        responseData.dislikesCount = updatedDoc.lfrs?.dislikesCount || 0
+      if (dislikesCountResult) {
+        responseData.disliked = false
+        responseData.dislikesCount = dislikesCountResult.totalDocs
       }
 
       return Response.json(responseData)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
+      console.error('[LFRS-LIKE] ERROR:', err.message, 'status:', err.status)
       const status = err.status || 500
       return Response.json({ error: err.message || 'Internal Server Error' }, { status })
     }
