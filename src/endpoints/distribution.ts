@@ -82,10 +82,21 @@ export const createDistributionEndpoint = (sanitized: SanitizedLfrsConfig): Payl
       // and returns average, totalRatings.
       // So returning the computed values is fine.
 
+      const distributionArray = []
+      for (let s = 1; s <= sanitized.rating.max; s += sanitized.rating.step) {
+        const scoreStr = s.toString()
+        const countForScore = distribution[scoreStr] || 0
+        distributionArray.push({
+          count: countForScore,
+          percentage: count > 0 ? (countForScore / count) * 100 : 0,
+          score: s,
+        })
+      }
+
       return Response.json({
-        average,
-        distribution,
-        ratingConfig: sanitized.rating,
+        averageScore: average,
+        config: sanitized.rating,
+        distribution: distributionArray,
         totalRatings: count,
       })
     } catch (err: any) {

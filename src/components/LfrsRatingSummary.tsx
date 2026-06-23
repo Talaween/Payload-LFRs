@@ -53,6 +53,15 @@ export const LfrsRatingSummary: React.FC<LfrsRatingSummaryProps> = ({
     }
 
     void fetchDistribution()
+
+    const handleReviewAdded = () => {
+      void fetchDistribution()
+    }
+    
+    window.addEventListener('lfrs-review-added', handleReviewAdded)
+    return () => {
+      window.removeEventListener('lfrs-review-added', handleReviewAdded)
+    }
   }, [apiBase, targetCollection, targetDoc])
 
   if (loading) {return <div className={`${styles.summary} ${className}`}>Loading...</div>}

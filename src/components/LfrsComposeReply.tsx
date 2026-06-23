@@ -7,6 +7,7 @@ import styles from './styles/lfrs.module.css'
 export interface LfrsComposeReplyProps {
   apiBase?: string
   className?: string
+  onAuthError?: () => void
   onCancel?: () => void
   onSuccess?: () => void
   reviewId: string
@@ -15,6 +16,7 @@ export interface LfrsComposeReplyProps {
 export const LfrsComposeReply: React.FC<LfrsComposeReplyProps> = ({
   apiBase = '/api',
   className = '',
+  onAuthError,
   onCancel,
   onSuccess,
   reviewId,
@@ -40,6 +42,10 @@ export const LfrsComposeReply: React.FC<LfrsComposeReplyProps> = ({
       })
 
       if (!res.ok) {
+        if (res.status === 401 && onAuthError) {
+          onAuthError()
+          return
+        }
         const err = await res.json()
         throw new Error(err.error || 'Failed to submit reply')
       }

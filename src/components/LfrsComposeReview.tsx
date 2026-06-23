@@ -15,6 +15,7 @@ export interface LfrsComposeReviewProps {
     title?: string
   }
   mediaEnabled?: boolean
+  onAuthError?: () => void
   onCancel?: () => void
   onSuccess?: () => void
   ratingConfig?: { icon: string; max: number; step: number }
@@ -27,6 +28,7 @@ export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
   className = '',
   initialData,
   mediaEnabled = false,
+  onAuthError,
   onCancel,
   onSuccess,
   ratingConfig = { icon: 'star', max: 5, step: 1 },
@@ -68,6 +70,10 @@ export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
       })
 
       if (!res.ok) {
+        if (res.status === 401 && onAuthError) {
+          onAuthError()
+          return
+        }
         const err = await res.json()
         throw new Error(err.error || 'Failed to submit review')
       }

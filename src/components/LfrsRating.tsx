@@ -1,24 +1,16 @@
 'use client'
 
-import React from 'react'
-import { Rating } from 'react-rating'
+import React, { useState } from 'react'
 
 import styles from './styles/lfrs.module.css'
 
 export interface LfrsRatingProps {
-  /** Optional class name to override styles */
   className?: string
-  /** The icon hint from config (e.g. 'star', 'heart') - used for future theming */
   icon?: string
-  /** The maximum rating value (default: 5) */
   max?: number
-  /** Callback when rating changes (only fired if not readonly) */
   onChange?: (value: number) => void
-  /** Whether the rating is interactive or read-only */
   readonly?: boolean
-  /** The step increment (default: 1) */
   step?: number
-  /** The current numeric rating value */
   value?: number
 }
 
@@ -40,10 +32,6 @@ const HeartIcon = ({ active }: { active?: boolean }) => (
   </svg>
 )
 
-/**
- * Interactive star/icon rating component.
- * Supports half-stars, read-only mode, and custom icons.
- */
 export const LfrsRating: React.FC<LfrsRatingProps> = ({
   className = '',
   icon = 'star',
@@ -53,9 +41,7 @@ export const LfrsRating: React.FC<LfrsRatingProps> = ({
   step = 1,
   value = 0,
 }) => {
-  // Determine number of segments for react-rating
-  // e.g. max 5, step 0.5 -> 10 fractions
-  const fractions = step < 1 ? Math.round(1 / step) : 1
+  const [hoverValue, setHoverValue] = useState<number | null>(null)
 
   const renderIcon = (active: boolean) => {
     switch (icon) {
@@ -67,18 +53,26 @@ export const LfrsRating: React.FC<LfrsRatingProps> = ({
     }
   }
 
+  const items = Array.from({ length: max }, (_, i) => i + 1)
+
   return (
-    <div className={`${styles.rating} ${readonly ? styles.ratingReadonly : ''} ${className}`}>
-      {/* react-rating takes initialRating, readonly, fractions, quiet (hover tracking) */}
-      <Rating
-        emptySymbol={renderIcon(false)}
-        fractions={fractions}
-        fullSymbol={renderIcon(true)}
-        initialRating={value}
-        onChange={onChange}
-        readonly={readonly}
-        stop={max}
-      />
+    <div 
+      className={`${styles.rating} ${readonly ? styles.ratingReadonly : ''} ${className}`}
+      onMouseLeave={() => !readonly && setHoverValue(null)}
+    >
+      {items.map((item) => {
+        const isActive = hoverValue !== null ? item <= hoverValue : item <= value
+        return (
+          <div
+            key={item}
+            onClick={() => !readonly && onChange?.(item)}
+            onMouseEnter={() => !readonly && setHoverValue(item)}
+            style={{ cursor: readonly ? 'default' : 'pointer', display: 'flex' }}
+          >
+            {renderIcon(isActive)}
+          </div>
+        )
+      })}
     </div>
   )
 }

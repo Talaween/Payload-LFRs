@@ -8,6 +8,7 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { testEmailAdapter } from './helpers/testEmailAdapter.js'
+import { Posts } from './collections/Posts.js'
 import { seed } from './seed.js'
 
 const filename = fileURLToPath(import.meta.url)
@@ -39,6 +40,9 @@ const buildConfigWithMemoryDB = async () => {
       {
         slug: 'users',
         auth: true,
+        access: {
+          create: () => true,
+        },
         fields: [
           {
             name: 'roles',
@@ -49,15 +53,7 @@ const buildConfigWithMemoryDB = async () => {
           },
         ],
       },
-      {
-        slug: 'posts',
-        fields: [
-          {
-            name: 'title',
-            type: 'text',
-          },
-        ],
-      },
+      Posts,
       {
         slug: 'products',
         fields: [

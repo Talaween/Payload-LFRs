@@ -12,6 +12,7 @@ export interface LfrsLikeDislikeProps {
   initialDislikesCount?: number
   initialLiked?: boolean
   initialLikesCount?: number
+  onAuthError?: () => void
   onToggle?: (state: { disliked: boolean; dislikesCount: number; liked: boolean; likesCount: number }) => void
   targetCollection: string
   targetDoc: string
@@ -37,6 +38,7 @@ export const LfrsLikeDislike: React.FC<LfrsLikeDislikeProps> = ({
   initialDislikesCount = 0,
   initialLiked = false,
   initialLikesCount = 0,
+  onAuthError,
   onToggle,
   targetCollection,
   targetDoc,
@@ -87,7 +89,12 @@ export const LfrsLikeDislike: React.FC<LfrsLikeDislikeProps> = ({
         method: 'POST',
       })
       
-      if (!res.ok) {throw new Error('API Error')}
+      if (!res.ok) {
+        if (res.status === 401 && onAuthError) {
+          onAuthError()
+        }
+        throw new Error('API Error')
+      }
       
       const data = await res.json()
       

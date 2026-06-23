@@ -9,6 +9,7 @@ import styles from './styles/lfrs.module.css'
 export interface LfrsReviewsSectionProps {
   apiBase?: string
   className?: string
+  onAuthError?: () => void
   targetCollection: string
   targetDoc: string
 }
@@ -16,6 +17,7 @@ export interface LfrsReviewsSectionProps {
 export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
   apiBase = '/api',
   className = '',
+  onAuthError,
   targetCollection,
   targetDoc,
 }) => {
@@ -81,6 +83,8 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
     setShowCompose(false)
     void fetchStatus()
     void fetchReviews(1)
+    // Dispatch an event so other components (like LfrsRatingSummary) know to refetch
+    window.dispatchEvent(new Event('lfrs-review-added'))
   }
 
   if (statusLoading && reviewsLoading) {
@@ -131,6 +135,7 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
             apiBase={apiBase}
             initialData={status.review}
             mediaEnabled={status.mediaEnabled}
+            onAuthError={onAuthError}
             onCancel={() => setShowCompose(false)}
             onSuccess={handleReviewSuccess}
             ratingConfig={status.ratingConfig}
@@ -147,6 +152,7 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
             <LfrsReviewCard
               apiBase={apiBase}
               key={review.id}
+              onAuthError={onAuthError}
               onReplySuccess={() => fetchReviews(page)}
               ratingConfig={status?.ratingConfig || { icon: 'star', max: 5, step: 1 }}
               repliesEnabled={status?.repliesEnabled}

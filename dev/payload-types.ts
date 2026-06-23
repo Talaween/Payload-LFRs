@@ -167,7 +167,24 @@ export interface User {
  */
 export interface Post {
   id: string;
-  title?: string | null;
+  title: string;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  author?: (string | null) | User;
+  publishedDate?: string | null;
   lfrs?: {
     likesCount?: number | null;
     dislikesCount?: number | null;
@@ -454,6 +471,9 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
+  content?: T;
+  author?: T;
+  publishedDate?: T;
   lfrs?:
     | T
     | {

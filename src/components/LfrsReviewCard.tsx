@@ -10,6 +10,7 @@ import styles from './styles/lfrs.module.css'
 export interface LfrsReviewCardProps {
   apiBase?: string
   className?: string
+  onAuthError?: () => void
   onReplySuccess?: () => void
   ratingConfig: { icon: string; max: number; step: number }
   repliesEnabled?: boolean
@@ -19,6 +20,7 @@ export interface LfrsReviewCardProps {
 export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = ({
   apiBase = '/api',
   className = '',
+  onAuthError,
   onReplySuccess,
   ratingConfig,
   repliesEnabled = false,
@@ -87,6 +89,7 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = ({
         <div style={{ marginTop: '16px' }}>
           <LfrsComposeReply
             apiBase={apiBase}
+            onAuthError={onAuthError}
             onCancel={() => setIsReplying(false)}
             onSuccess={handleReplySuccess}
             reviewId={review.id}

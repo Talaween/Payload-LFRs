@@ -8,6 +8,7 @@ export interface LfrsFavouriteProps {
   apiBase?: string
   className?: string
   initialFavourited?: boolean
+  onAuthError?: () => void
   onToggle?: (favourited: boolean) => void
   targetCollection: string
   targetDoc: string
@@ -23,6 +24,7 @@ export const LfrsFavourite: React.FC<LfrsFavouriteProps> = ({
   apiBase = '/api',
   className = '',
   initialFavourited = false,
+  onAuthError,
   onToggle,
   targetCollection,
   targetDoc,
@@ -45,7 +47,12 @@ export const LfrsFavourite: React.FC<LfrsFavouriteProps> = ({
         method: 'POST',
       })
       
-      if (!res.ok) {throw new Error('API Error')}
+      if (!res.ok) {
+        if (res.status === 401 && onAuthError) {
+          onAuthError()
+        }
+        throw new Error('API Error')
+      }
       
       const data = await res.json()
       
