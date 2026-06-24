@@ -18,7 +18,7 @@ export interface LfrsReviewCardProps {
   review: any
 }
 
-export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = ({
+export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(({
   apiBase = '/api',
   className = '',
   onAuthError,
@@ -111,4 +111,4 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = ({
       )}
     </div>
   )
-}
+})

@@ -81,13 +81,22 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
     void fetchReviews(1)
   }, [fetchStatus, fetchReviews])
 
-  const handleReviewSuccess = () => {
+  const handleReviewSuccess = useCallback(() => {
     setShowCompose(false)
     void fetchStatus()
     void fetchReviews(1)
     // Dispatch an event so other components (like LfrsRatingSummary) know to refetch
     window.dispatchEvent(new Event('lfrs-review-added'))
-  }
+  }, [fetchStatus, fetchReviews])
+
+  const handleCancelCompose = useCallback(() => setShowCompose(false), [])
+
+  const handleReplySuccess = useCallback(() => {
+    fetchReviews(page)
+  }, [fetchReviews, page])
+
+  const handleEditReview = useCallback(() => setShowCompose(true), [])
+  const handleWriteReview = useCallback(() => setShowCompose(true), [])
 
   if (statusLoading && reviewsLoading) {
     return <div className={`${styles.reviewsSection} ${className}`}>Loading reviews...</div>
@@ -102,7 +111,7 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
         {(!hasMyReview || status?.allowMultipleReviews) && !showCompose && status && (
           <button
             className={`${styles.button} ${styles.buttonPrimary}`}
-            onClick={() => setShowCompose(true)}
+            onClick={handleWriteReview}
             type="button"
           >
             Write a Review
@@ -115,14 +124,14 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
           <h3>Your Review</h3>
           <LfrsReviewCard
             apiBase={apiBase}
-            onReplySuccess={() => fetchReviews(1)}
+            onReplySuccess={handleReplySuccess}
             ratingConfig={status.ratingConfig}
             repliesEnabled={status.repliesEnabled}
             review={status.review}
           />
           <button
             className={`${styles.button} ${styles.buttonSecondary}`}
-            onClick={() => setShowCompose(true)}
+            onClick={handleEditReview}
             style={{ marginTop: '12px' }}
             type="button"
           >
@@ -139,7 +148,7 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
             initialData={hasMyReview && !status?.allowMultipleReviews ? status.review : undefined}
             mediaEnabled={status.mediaEnabled}
             onAuthError={onAuthError}
-            onCancel={() => setShowCompose(false)}
+            onCancel={handleCancelCompose}
             onSuccess={handleReviewSuccess}
             ratingConfig={status.ratingConfig}
             targetCollection={targetCollection}
@@ -156,7 +165,7 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
               apiBase={apiBase}
               key={review.id}
               onAuthError={onAuthError}
-              onReplySuccess={() => fetchReviews(page)}
+              onReplySuccess={handleReplySuccess}
               ratingConfig={status?.ratingConfig || { icon: 'star', max: 5, step: 1 }}
               repliesEnabled={status?.repliesEnabled}
               review={review}

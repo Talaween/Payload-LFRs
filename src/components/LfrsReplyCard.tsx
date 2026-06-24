@@ -10,7 +10,7 @@ export interface LfrsReplyCardProps {
   reply: any
 }
 
-export const LfrsReplyCard: React.FC<LfrsReplyCardProps> = ({ className = '', reply }) => {
+export const LfrsReplyCard: React.FC<LfrsReplyCardProps> = React.memo(({ className = '', reply }) => {
   const authorName = reply.user?.name || reply.user?.email || 'Anonymous'
   const dateStr = new Date(reply.createdAt).toLocaleDateString()
 
@@ -23,4 +23,4 @@ export const LfrsReplyCard: React.FC<LfrsReplyCardProps> = ({ className = '', re
       <p className={styles.reviewBody}>{reply.body}</p>
     </div>
   )
-}
+})
