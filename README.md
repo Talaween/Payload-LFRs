@@ -8,10 +8,22 @@ A comprehensive plugin for [Payload CMS 3.x](https://payloadcms.com) that adds *
 - **Favourites**: Enable users to save documents to their favourites.
 - **Ratings**: Add customizable rating systems (e.g., 5-star, 10-point scale, half-stars).
 - **Reviews & Replies**: Let users write reviews and others to reply to them.
-- **Media Uploads**: Support for attaching images or videos to reviews.
-- **Fine-grained Access Control**: Configure who can interact with each feature per collection (e.g., specific roles, custom logic).
-- **Automated Aggregation**: Automatically calculates and injects total likes, average ratings, and interaction states into your documents.
-- **Review Moderation**: Built-in admin view to moderate pending reviews.
+- **Review Media**: Users can attach images or videos to their reviews
+- **Admin Moderation**: Moderation view to approve or delete reviews and replies
+- **Extensible API**: Headless REST API for full frontend flexibility
+
+## Screenshots
+
+Here are examples of what you can build on the frontend using this plugin:
+
+### Interactions (Likes, Dislikes, Favourites)
+![Interactions UI](./docs/assets/interactions.png)
+
+### Ratings Distribution & Submission
+![Ratings UI](./docs/assets/ratings.png)
+
+### Reviews & Threaded Replies
+![Reviews UI](./docs/assets/reviews.png)
 
 ## Installation
 
