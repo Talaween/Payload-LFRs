@@ -144,6 +144,11 @@ The slug of your users collection for authentication (default: `'users'`).
 
 The group name under which the LFRs collections will appear in the Admin UI (default: `'LFRs'`).
 
+### `disabled`
+
+Set to `true` to completely disable the plugin's features without uninstalling it or losing data (default: `false`).
+When `disabled: true`, the plugin will continue to register its collections and fields to keep your database schema consistent (which is important for migrations), but it will *not* register any API endpoints, lifecycle hooks, or Admin UI components. This is perfect for temporarily pausing interactions while keeping historical data intact.
+
 ### `collectionSlugs`
 
 Override the default slugs for the internal collections created by the plugin (`likes`, `dislikes`, `favourites`, `ratings`, `reviews`, `replies`).
