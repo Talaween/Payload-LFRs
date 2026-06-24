@@ -66,7 +66,10 @@ export default function LoginPage() {
         style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'left' }}
       >
         <div>
-          <label style={{ color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}>
+          <label
+            style={{ color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}
+            htmlFor="email"
+          >
             Email
           </label>
           <input
@@ -84,10 +87,15 @@ export default function LoginPage() {
             }}
             type="email"
             value={email}
+            id="email"
+            aria-label="Email"
           />
         </div>
         <div>
-          <label style={{ color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}>
+          <label
+            style={{ color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}
+            htmlFor="password"
+          >
             Password
           </label>
           <input
@@ -105,6 +113,8 @@ export default function LoginPage() {
             }}
             type="password"
             value={password}
+            id="password"
+            aria-label="Password"
           />
         </div>
         <button

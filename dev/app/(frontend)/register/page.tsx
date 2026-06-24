@@ -13,12 +13,14 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email || !password) return setError('Please enter both email and password.')
-    
+    if (!email || !password) {
+      return setError('Please enter both email and password.')
+    }
+
     try {
       setLoading(true)
       setError('')
-      
+
       // Create user
       const res = await fetch('/api/users', {
         method: 'POST',
@@ -56,48 +58,96 @@ export default function RegisterPage() {
       <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
         Create an account to interact with posts.
       </p>
-      
+
       {error && (
-        <div style={{ background: 'rgba(244, 63, 94, 0.1)', color: 'var(--accent)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+        <div
+          style={{
+            background: 'rgba(244, 63, 94, 0.1)',
+            color: 'var(--accent)',
+            padding: '1rem',
+            borderRadius: '8px',
+            marginBottom: '1rem',
+          }}
+        >
           {error}
         </div>
       )}
 
-      <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'left' }}>
+      <form
+        onSubmit={handleRegister}
+        style={{ display: 'flex', flexDirection: 'column', gap: '1rem', textAlign: 'left' }}
+      >
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Email</label>
-          <input 
-            type="email" 
+          <label
+            style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}
+            htmlFor="email"
+          >
+            Email
+          </label>
+          <input
+            type="email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'white', fontFamily: 'inherit' }} 
+            onChange={(e) => setEmail(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              borderRadius: '8px',
+              border: '1px solid var(--border)',
+              background: 'var(--bg-card)',
+              color: 'white',
+              fontFamily: 'inherit',
+            }}
             placeholder="you@example.com"
             required
+            id="email"
+            aria-label="Email"
           />
         </div>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Password</label>
-          <input 
-            type="password" 
+          <label
+            style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}
+            htmlFor="password"
+          >
+            Password
+          </label>
+          <input
+            type="password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'white', fontFamily: 'inherit' }} 
+            onChange={(e) => setPassword(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              borderRadius: '8px',
+              border: '1px solid var(--border)',
+              background: 'var(--bg-card)',
+              color: 'white',
+              fontFamily: 'inherit',
+            }}
             placeholder="••••••••"
             required
             minLength={4}
+            id="password"
+            aria-label="Password"
           />
         </div>
-        <button 
-          type="submit" 
-          disabled={loading} 
-          className="btn-fav" 
-          style={{ justifyContent: 'center', marginTop: '1rem', background: 'linear-gradient(135deg, #6366f1, #2dd4bf)' }}
+        <button
+          type="submit"
+          disabled={loading}
+          className="btn-fav"
+          style={{
+            justifyContent: 'center',
+            marginTop: '1rem',
+            background: 'linear-gradient(135deg, #6366f1, #2dd4bf)',
+          }}
         >
           {loading ? 'Registering...' : 'Register as Subscriber'}
         </button>
       </form>
       <div style={{ marginTop: '2rem', color: 'var(--text-muted)' }}>
-        Already have an account? <Link href="/login" style={{ color: 'var(--primary)' }}>Login here</Link>
+        Already have an account?{' '}
+        <Link href="/login" style={{ color: 'var(--primary)' }}>
+          Login here
+        </Link>
       </div>
     </div>
   )
