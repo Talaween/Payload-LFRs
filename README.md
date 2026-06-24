@@ -100,6 +100,22 @@ collections: {
 }
 ```
 
+### `readReviews`
+
+Access control for viewing reviews and replies. 
+Unlike the interaction features which default to `true` (requiring authentication), this defaults to `'public'`, allowing anyone (including guests) to read reviews and replies. You can restrict this to specific roles (e.g. `['admin']`), to logged-in users only (`true`), or provide a custom function.
+*(Default: `'public'`)*
+
+### `allowMultipleReviews`
+
+If `true`, users can submit more than one review on the same document. If `false`, they are restricted to a single review, and the UI component will present an "Edit Review" button instead of "Write a Review".
+*(Default: `false`)*
+
+### `enableReviewRating`
+
+If `false`, users can submit a review without being forced to provide a star rating. This effectively turns the review system into a standard comment system.
+*(Default: `true`)*
+
 #### Access Control
 
 For each feature (`likes`, `dislikes`, `favourites`, `ratings`, `reviews`, `replies`), you can provide:
