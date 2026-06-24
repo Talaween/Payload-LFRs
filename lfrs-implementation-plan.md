@@ -841,6 +841,39 @@ Response: {
 - Authenticated only
 - Returns an array of document IDs that the current user has favourited in the specified target collection.
 
+### 7.11 Get Likes Count
+
+```
+GET /api/lfrs/likes-count?collection=<slug>&id=<docId>
+Response: {
+  likesCount: number
+}
+```
+
+- Returns the count of likes for the specified target document.
+
+### 7.12 Get Dislikes Count
+
+```
+GET /api/lfrs/dislikes-count?collection=<slug>&id=<docId>
+Response: {
+  dislikesCount: number
+}
+```
+
+- Returns the count of dislikes for the specified target document.
+
+### 7.13 Get User Reviews
+
+```
+GET /api/lfrs/user-reviews?collection=<slug>&id=<docId>&userId=<userId>
+Response: {
+  reviews: ReviewDoc[]
+}
+```
+
+- Returns all reviews submitted by the specified user for the given document.
+
 ---
 
 ## 8. Hooks Architecture
