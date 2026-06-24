@@ -20,17 +20,13 @@ export const createLikesCountEndpoint = (sanitized: SanitizedLfrsConfig): Payloa
       const { totalDocs } = await req.payload.count({
         collection: sanitized.collectionSlugs.likes,
         where: {
-          and: [
-            { targetCollection: { equals: collection } },
-            { targetDoc: { equals: id } },
-          ],
+          and: [{ targetCollection: { equals: collection } }, { targetDoc: { equals: id } }],
         },
         overrideAccess: true,
         req,
       })
 
       return Response.json({ likesCount: totalDocs })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const status = err.status || 500
       return Response.json({ error: err.message || 'Internal Server Error' }, { status })

@@ -38,9 +38,7 @@ export const ReviewModerationView: React.FC = () => {
         method: 'PATCH',
       })
       // Refresh
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setReviewsParams((prev: any) => ({ ...prev }))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setRepliesParams((prev: any) => ({ ...prev }))
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -56,9 +54,7 @@ export const ReviewModerationView: React.FC = () => {
         method: 'PATCH',
       })
       // Refresh
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setReviewsParams((prev: any) => ({ ...prev }))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setRepliesParams((prev: any) => ({ ...prev }))
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -79,7 +75,6 @@ export const ReviewModerationView: React.FC = () => {
           <div>Loading...</div>
         ) : reviewsData?.docs?.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             {reviewsData.docs.map((doc: any) => (
               <div
                 key={doc.id}
@@ -146,7 +141,6 @@ export const ReviewModerationView: React.FC = () => {
           <div>Loading...</div>
         ) : repliesData?.docs?.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             {repliesData.docs.map((doc: any) => (
               <div
                 key={doc.id}

@@ -4,7 +4,6 @@ import { useField } from '@payloadcms/ui'
 import React from 'react'
 
 export const LfrsStatusWidget: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { value } = useField<any>({ path: 'lfrs' })
 
   if (!value) {

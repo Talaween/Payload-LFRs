@@ -209,7 +209,6 @@ export const payloadLfRs =
         Component: 'payload-lfrs/admin#ReviewModerationView',
         exact: true,
         path: '/lfrs-moderation',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any
     }
 

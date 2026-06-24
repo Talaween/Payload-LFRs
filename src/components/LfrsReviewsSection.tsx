@@ -24,9 +24,7 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
   const [statusLoading, setStatusLoading] = useState(true)
   const [reviewsLoading, setReviewsLoading] = useState(true)
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [status, setStatus] = useState<any>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [reviews, setReviews] = useState<any[]>([])
 
   const [page, setPage] = useState(1)

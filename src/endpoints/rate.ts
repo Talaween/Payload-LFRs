@@ -25,7 +25,6 @@ export const createRateEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHandl
         throw new APIError('Ratings are not enabled for this collection', 404)
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let targetDoc: any
       try {
         targetDoc = await req.payload.findByID({
@@ -68,7 +67,6 @@ export const createRateEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHandl
         },
       })
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let ratingDoc: any
 
       if (existingRatings.docs.length > 0) {
@@ -109,7 +107,6 @@ export const createRateEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHandl
         ratingsAverage: updatedDoc.lfrs?.ratingsAverage || 0,
         ratingsCount: updatedDoc.lfrs?.ratingsCount || 0,
       })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const status = err.status || 500
       return Response.json({ error: err.message || 'Internal Server Error' }, { status })

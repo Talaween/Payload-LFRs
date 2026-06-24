@@ -25,7 +25,6 @@ export const createLikeEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHandl
         throw new APIError('Likes are not enabled for this collection', 404)
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let targetDoc: any
       try {
         targetDoc = await req.payload.findByID({
@@ -156,7 +155,6 @@ export const createLikeEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHandl
       ])
 
       // --- Update the target document's aggregate counts directly ---
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const lfrsUpdate: Record<string, any> = { likesCount }
       if (enabledFeatures.has('dislikes')) {
         lfrsUpdate.dislikesCount = dislikesCount
@@ -172,7 +170,6 @@ export const createLikeEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHandl
       })
 
       // --- Build response ---
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const responseData: any = { liked, likesCount }
 
       if (enabledFeatures.has('dislikes')) {
@@ -181,7 +178,6 @@ export const createLikeEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHandl
       }
 
       return Response.json(responseData)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const status = err.status || 500
       return Response.json({ error: err.message || 'Internal Server Error' }, { status })

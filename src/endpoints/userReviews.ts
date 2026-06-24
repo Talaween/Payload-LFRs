@@ -32,7 +32,6 @@ export const createUserReviewsEndpoint = (sanitized: SanitizedLfrsConfig): Paylo
       })
 
       return Response.json({ reviews: reviews.docs })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const status = err.status || 500
       return Response.json({ error: err.message || 'Internal Server Error' }, { status })

@@ -30,7 +30,6 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
         throw new APIError('Reviews are not enabled for this collection', 404)
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let targetDoc: any
       try {
         targetDoc = await req.payload.findByID({
@@ -73,7 +72,6 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
         },
       })
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dataToSave: any = {
         body: reviewBody,
         score,
@@ -88,7 +86,6 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
         dataToSave.status = 'pending'
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let reviewDoc: any
 
       if (existingReviews.docs.length > 0 && !collectionOptions.allowMultipleReviews) {
@@ -105,7 +102,7 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
         dataToSave.user = userId
         dataToSave.targetCollection = collection
         dataToSave.targetDoc = id
-        
+
         reviewDoc = await req.payload.create({
           collection: sanitized.collectionSlugs.reviews,
           data: dataToSave,
@@ -126,7 +123,6 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
         review: reviewDoc,
         reviewsCount: updatedDoc.lfrs?.reviewsCount || 0,
       })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const status = err.status || 500
       return Response.json({ error: err.message || 'Internal Server Error' }, { status })

@@ -15,7 +15,6 @@ export const createReplyEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHand
         throw new APIError('Missing reviewId or body', 400)
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let parentReview: any
       try {
         parentReview = await req.payload.findByID({
@@ -30,7 +29,7 @@ export const createReplyEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHand
 
       const collection = parentReview.targetCollection
       const collectionOptions = sanitized.collections[collection]
-      
+
       if (!collectionOptions) {
         throw new APIError('LFRs is not enabled for this collection', 404)
       }
@@ -40,7 +39,6 @@ export const createReplyEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHand
         throw new APIError('Replies are not enabled for this collection', 404)
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let targetDoc: any
       try {
         targetDoc = await req.payload.findByID({
@@ -69,7 +67,6 @@ export const createReplyEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHand
         throw new APIError('Authentication required', 401)
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dataToSave: any = {
         body: replyBody,
         review: reviewId,
@@ -99,7 +96,6 @@ export const createReplyEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHand
         repliesCount: updatedReview.repliesCount || 0,
         reply: replyDoc,
       })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const status = err.status || 500
       return Response.json({ error: err.message || 'Internal Server Error' }, { status })
@@ -125,21 +121,22 @@ export const deleteReplyEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHand
       // Check access: own replies only, or admin
       // We can just rely on the collection's access control (which has delete: isOwnerOrAdmin)
       // by not overriding access.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let deletedReply: any
       try {
         deletedReply = await req.payload.delete({
           id: replyId,
           collection: sanitized.collectionSlugs.replies,
           overrideAccess: false,
-          req, 
+          req,
         })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         throw new APIError(err.message || 'Error deleting reply or forbidden', 403)
       }
 
-      const reviewId = typeof deletedReply.review === 'object' && deletedReply.review !== null ? deletedReply.review.id : deletedReply.review;
+      const reviewId =
+        typeof deletedReply.review === 'object' && deletedReply.review !== null
+          ? deletedReply.review.id
+          : deletedReply.review
 
       const updatedReview = await req.payload.findByID({
         id: reviewId as string,
@@ -152,7 +149,6 @@ export const deleteReplyEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHand
         deleted: true,
         repliesCount: updatedReview.repliesCount || 0,
       })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const status = err.status || 500
       return Response.json({ error: err.message || 'Internal Server Error' }, { status })

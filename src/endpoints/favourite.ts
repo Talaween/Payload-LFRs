@@ -25,7 +25,6 @@ export const createFavouriteEndpoint = (sanitized: SanitizedLfrsConfig): Payload
         throw new APIError('Favourites are not enabled for this collection', 404)
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let targetDoc: any
       try {
         targetDoc = await req.payload.findByID({
@@ -122,7 +121,6 @@ export const createFavouriteEndpoint = (sanitized: SanitizedLfrsConfig): Payload
       })
 
       return Response.json({ favourited, favouritesCount })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const status = err.status || 500
       return Response.json({ error: err.message || 'Internal Server Error' }, { status })

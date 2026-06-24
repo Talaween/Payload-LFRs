@@ -24,7 +24,6 @@ export const createDistributionEndpoint = (sanitized: SanitizedLfrsConfig): Payl
       let totalScore = 0
       let count = 0
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const processScores = (docs: any[]) => {
         for (const doc of docs) {
           if (typeof doc.score === 'number') {
@@ -45,24 +44,17 @@ export const createDistributionEndpoint = (sanitized: SanitizedLfrsConfig): Payl
           overrideAccess: true,
           req,
           where: {
-            and: [
-              { targetCollection: { equals: collection } },
-              { targetDoc: { equals: id } },
-            ],
+            and: [{ targetCollection: { equals: collection } }, { targetDoc: { equals: id } }],
           },
         })
         processScores(ratings.docs)
       }
 
       if (enabledFeatures.has('reviews')) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const where: any = {
-          and: [
-            { targetCollection: { equals: collection } },
-            { targetDoc: { equals: id } },
-          ],
+          and: [{ targetCollection: { equals: collection } }, { targetDoc: { equals: id } }],
         }
-        
+
         if (sanitized.reviewModeration) {
           where.and.push({ status: { equals: 'approved' } })
         }
@@ -101,7 +93,6 @@ export const createDistributionEndpoint = (sanitized: SanitizedLfrsConfig): Payl
         distribution: distributionArray,
         totalRatings: count,
       })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const status = err.status || 500
       return Response.json({ error: err.message || 'Internal Server Error' }, { status })
