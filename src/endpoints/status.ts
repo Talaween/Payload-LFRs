@@ -150,7 +150,32 @@ export const createStatusEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
             ],
           },
         })
-        response.review = reviews.docs.length > 0 ? reviews.docs[0] : null
+        if (reviews.docs.length > 0) {
+          const review = reviews.docs[0]
+          
+          if (enabledFeatures.has('replies')) {
+            const replies = await req.payload.find({
+              collection: sanitized.collectionSlugs.replies,
+              limit: 100,
+              overrideAccess: true,
+              req,
+              sort: 'createdAt',
+              where: {
+                and: [
+                  { review: { equals: review.id } },
+                  ...(sanitized.reviewModeration ? [{ status: { equals: 'approved' } }] : []),
+                ],
+              },
+            })
+            review.replies = replies.docs
+          } else {
+            review.replies = []
+          }
+          
+          response.review = review
+        } else {
+          response.review = null
+        }
       } else {
         response.review = null
       }
