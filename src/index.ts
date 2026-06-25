@@ -1,6 +1,6 @@
 // ─── Plugin Entry Point ────────────────────────────────────────────────────────
 
-export { payloadLfRs } from './plugin.js'
+export { payloadLFRs } from './plugin.js'
 
 // ─── Type Exports ──────────────────────────────────────────────────────────────
 

@@ -17,12 +17,15 @@ A comprehensive plugin for [Payload CMS 3.x](https://payloadcms.com) that adds *
 Here are examples of what you can build on the frontend using this plugin:
 
 ### Interactions (Likes, Dislikes, Favourites)
+
 ![Interactions UI](./docs/assets/interactions.png)
 
 ### Ratings Distribution & Submission
+
 ![Ratings UI](./docs/assets/ratings.png)
 
 ### Reviews & Threaded Replies
+
 ![Reviews UI](./docs/assets/reviews.png)
 
 ## Installation
@@ -56,12 +59,12 @@ Add the plugin to your Payload configuration:
 
 ```typescript
 import { buildConfig } from 'payload'
-import { payloadLfRs } from 'payload-lfrs'
+import { payloadLFRs } from 'payload-lfrs'
 
 export default buildConfig({
   // ... your existing config
   plugins: [
-    payloadLfRs({
+    payloadLFRs({
       collections: {
         // Enable LFRs features on the 'posts' collection
         posts: {
@@ -78,7 +81,7 @@ export default buildConfig({
 
 ## Configuration
 
-The `payloadLfRs` plugin accepts a configuration object with the following properties:
+The `payloadLFRs` plugin accepts a configuration object with the following properties:
 
 ### `collections` (Required)
 
@@ -102,19 +105,19 @@ collections: {
 
 ### `readReviews`
 
-Access control for viewing reviews and replies. 
+Access control for viewing reviews and replies.
 Unlike the interaction features which default to `true` (requiring authentication), this defaults to `'public'`, allowing anyone (including guests) to read reviews and replies. You can restrict this to specific roles (e.g. `['admin']`), to logged-in users only (`true`), or provide a custom function.
-*(Default: `'public'`)*
+_(Default: `'public'`)_
 
 ### `allowMultipleReviews`
 
 If `true`, users can submit more than one review on the same document. If `false`, they are restricted to a single review, and the UI component will present an "Edit Review" button instead of "Write a Review".
-*(Default: `false`)*
+_(Default: `false`)_
 
 ### `enableReviewRating`
 
 If `false`, users can submit a review without being forced to provide a star rating. This effectively turns the review system into a standard comment system.
-*(Default: `true`)*
+_(Default: `true`)_
 
 #### Access Control
 
@@ -176,7 +179,7 @@ The group name under which the LFRs collections will appear in the Admin UI (def
 ### `disabled`
 
 Set to `true` to completely disable the plugin's features without uninstalling it or losing data (default: `false`).
-When `disabled: true`, the plugin will continue to register its collections and fields to keep your database schema consistent (which is important for migrations), but it will *not* register any API endpoints, lifecycle hooks, or Admin UI components. This is perfect for temporarily pausing interactions while keeping historical data intact.
+When `disabled: true`, the plugin will continue to register its collections and fields to keep your database schema consistent (which is important for migrations), but it will _not_ register any API endpoints, lifecycle hooks, or Admin UI components. This is perfect for temporarily pausing interactions while keeping historical data intact.
 
 ### `collectionSlugs`
 
@@ -218,6 +221,7 @@ The plugin exposes several endpoints for interacting with the LFRs features from
 Retrieves the total count of likes for a specific document.
 
 **Query Parameters:**
+
 - `collection` (required)
 - `id` (required)
 
@@ -228,6 +232,7 @@ Retrieves the total count of likes for a specific document.
 Retrieves an array of user IDs who liked a specific document.
 
 **Query Parameters:**
+
 - `collection` (required)
 - `id` (required)
 - `limit` (optional, default: 1000)
@@ -239,6 +244,7 @@ Retrieves an array of user IDs who liked a specific document.
 Retrieves the total count of dislikes for a specific document.
 
 **Query Parameters:**
+
 - `collection` (required)
 - `id` (required)
 
@@ -249,6 +255,7 @@ Retrieves the total count of dislikes for a specific document.
 Retrieves an array of user IDs who disliked a specific document.
 
 **Query Parameters:**
+
 - `collection` (required)
 - `id` (required)
 - `limit` (optional, default: 1000)
@@ -306,22 +313,22 @@ Here are the available variables and their default fallback values:
 
 ```css
 :root {
-  --lfrs-primary: #000000;          /* Used for primary buttons (e.g. "Write a Review") */
-  --lfrs-text: #333333;             /* Main text color */
-  --lfrs-text-muted: #666666;       /* Dates, secondary text, placeholders */
-  --lfrs-bg: #ffffff;               /* Main background color for cards */
-  --lfrs-bg-muted: #f5f5f5;         /* Background for replies and forms */
-  --lfrs-border: #e0e0e0;           /* Borders around cards and inputs */
-  
-  --lfrs-star-active: #ffb400;      /* Color of filled rating stars and bars */
-  --lfrs-star-inactive: #e0e0e0;    /* Color of empty rating stars */
-  
-  --lfrs-like-active: #0066cc;      /* Active state for Like button */
-  --lfrs-dislike-active: #cc0000;   /* Active state for Dislike button */
+  --lfrs-primary: #000000; /* Used for primary buttons (e.g. "Write a Review") */
+  --lfrs-text: #333333; /* Main text color */
+  --lfrs-text-muted: #666666; /* Dates, secondary text, placeholders */
+  --lfrs-bg: #ffffff; /* Main background color for cards */
+  --lfrs-bg-muted: #f5f5f5; /* Background for replies and forms */
+  --lfrs-border: #e0e0e0; /* Borders around cards and inputs */
+
+  --lfrs-star-active: #ffb400; /* Color of filled rating stars and bars */
+  --lfrs-star-inactive: #e0e0e0; /* Color of empty rating stars */
+
+  --lfrs-like-active: #0066cc; /* Active state for Like button */
+  --lfrs-dislike-active: #cc0000; /* Active state for Dislike button */
   --lfrs-favourite-active: #ff0055; /* Active state for Favourite button */
-  
-  --lfrs-radius: 6px;               /* Border radius for buttons, inputs, and cards */
-  --lfrs-font: inherit;             /* Font family inherited from your app by default */
+
+  --lfrs-radius: 6px; /* Border radius for buttons, inputs, and cards */
+  --lfrs-font: inherit; /* Font family inherited from your app by default */
 }
 ```
 
@@ -330,14 +337,16 @@ Here are the available variables and their default fallback values:
 If you want to style a single component, you can pass the variables via the `style` prop:
 
 ```tsx
-<LfrsRatingSummary 
-  targetCollection="posts" 
-  targetDoc={post.id} 
-  style={{
-    '--lfrs-star-active': '#10b981', // Green stars
-    '--lfrs-bg': '#1f2937',          // Dark mode background
-    '--lfrs-text': '#f9fafb'         // Light text
-  } as React.CSSProperties}
+<LfrsRatingSummary
+  targetCollection="posts"
+  targetDoc={post.id}
+  style={
+    {
+      '--lfrs-star-active': '#10b981', // Green stars
+      '--lfrs-bg': '#1f2937', // Dark mode background
+      '--lfrs-text': '#f9fafb', // Light text
+    } as React.CSSProperties
+  }
 />
 ```
 

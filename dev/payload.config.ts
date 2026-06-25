@@ -3,10 +3,9 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { MongoMemoryReplSet } from 'mongodb-memory-server'
 import path from 'path'
 import { buildConfig } from 'payload'
-import { payloadLfRs } from 'payload-lfrs'
+import { payloadLFRs } from 'payload-lfrs'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
-
 import { testEmailAdapter } from './helpers/testEmailAdapter.js'
 import { Posts } from './collections/Posts.js'
 import { seed } from './seed.js'
@@ -26,10 +25,8 @@ const buildConfigWithMemoryDB = async () => {
         dbName: 'payloadmemory',
       },
     })
-
     process.env.DATABASE_URL = `${memoryDB.getUri()}&retryWrites=true`
   }
-
   return buildConfig({
     admin: {
       importMap: {
@@ -49,29 +46,11 @@ const buildConfigWithMemoryDB = async () => {
             type: 'select',
             defaultValue: ['subscriber'],
             hasMany: true,
-            options: ['admin', 'subscriber', 'employee'],
+            options: ['admin', 'subscriber'],
           },
         ],
       },
       Posts,
-      {
-        slug: 'products',
-        fields: [
-          {
-            name: 'name',
-            type: 'text',
-          },
-        ],
-      },
-      {
-        slug: 'internal-docs',
-        fields: [
-          {
-            name: 'title',
-            type: 'text',
-          },
-        ],
-      },
       {
         slug: 'media',
         fields: [],
@@ -90,12 +69,8 @@ const buildConfigWithMemoryDB = async () => {
       await seed(payload)
     },
     plugins: [
-      payloadLfRs({
+      payloadLFRs({
         collections: {
-          'internal-docs': {
-            favourites: false,
-            likes: ['employee', 'admin'],
-          },
           posts: {
             allowMultipleReviews: true, // Can leave multiple reviews
             dislikes: true, // test mutual exclusivity
@@ -105,15 +80,6 @@ const buildConfigWithMemoryDB = async () => {
             ratings: true,
             replies: ['admin'], // Only admin can reply
             reviews: true,
-          },
-          products: {
-            likes: true,
-            ratings: ({ req }: any) => {
-              // Only allow rating if user is authenticated (custom fn test)
-              return !!req.user
-            },
-            replies: false, // disabled
-            reviews: ['admin', 'subscriber'], // role based access
           },
         },
         reviewMedia: {

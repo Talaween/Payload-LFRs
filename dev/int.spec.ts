@@ -3,7 +3,6 @@ import type { Payload } from 'payload'
 import config from '@payload-config'
 import { createPayloadRequest, getPayload } from 'payload'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-
 import { sanitizePluginConfig } from '../src/defaults.js'
 import { createDislikeEndpoint } from '../src/endpoints/dislike.js'
 import { createDistributionEndpoint } from '../src/endpoints/distribution.js'
@@ -14,7 +13,6 @@ import { createRateEndpoint } from '../src/endpoints/rate.js'
 import { createReplyEndpoint, deleteReplyEndpoint } from '../src/endpoints/reply.js'
 import { createReviewEndpoint } from '../src/endpoints/review.js'
 import { createStatusEndpoint } from '../src/endpoints/status.js'
-import { payloadLfRs } from '../src/index.js'
 
 let payload: Payload
 let adminUser: any
@@ -53,12 +51,10 @@ async function makeRequest(
   let data
   try {
     data = await response.json()
-  } catch (e) {
+  } catch (_) {
     data = null
   }
-  if (response.status === 500) {
-    console.log(`500 Error:`, data)
-  }
+
   return { data, status: response.status }
 }
 

@@ -98,7 +98,7 @@ export const createFavouriteEndpoint = (sanitized: SanitizedLfrsConfig): Payload
         favourited = true
       }
 
-      // --- Count interactions directly (source of truth) ---
+      // --- Count interactions directly ---
       const favouritesCount = await req.payload
         .count({
           collection: sanitized.collectionSlugs.favourites,

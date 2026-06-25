@@ -69,8 +69,6 @@ export interface Config {
   collections: {
     users: User;
     posts: Post;
-    products: Product;
-    'internal-docs': InternalDoc;
     media: Media;
     'lfrs-likes': LfrsLike;
     'lfrs-dislikes': LfrsDislike;
@@ -87,8 +85,6 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
-    products: ProductsSelect<false> | ProductsSelect<true>;
-    'internal-docs': InternalDocsSelect<false> | InternalDocsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'lfrs-likes': LfrsLikesSelect<false> | LfrsLikesSelect<true>;
     'lfrs-dislikes': LfrsDislikesSelect<false> | LfrsDislikesSelect<true>;
@@ -141,7 +137,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: string;
-  roles?: ('admin' | 'subscriber' | 'employee')[] | null;
+  roles?: ('admin' | 'subscriber')[] | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -168,60 +164,13 @@ export interface User {
 export interface Post {
   id: string;
   title: string;
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
+  content?: string | null;
   author?: (string | null) | User;
   publishedDate?: string | null;
   lfrs?: {
     likesCount?: number | null;
     dislikesCount?: number | null;
     favouritesCount?: number | null;
-    ratingsCount?: number | null;
-    ratingsAverage?: number | null;
-    reviewsCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "products".
- */
-export interface Product {
-  id: string;
-  name?: string | null;
-  lfrs?: {
-    likesCount?: number | null;
-    favouritesCount?: number | null;
-    ratingsCount?: number | null;
-    ratingsAverage?: number | null;
-    reviewsCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "internal-docs".
- */
-export interface InternalDoc {
-  id: string;
-  title?: string | null;
-  lfrs?: {
-    likesCount?: number | null;
     ratingsCount?: number | null;
     ratingsAverage?: number | null;
     reviewsCount?: number | null;
@@ -307,7 +256,7 @@ export interface LfrsReview {
   targetDoc: string;
   title?: string | null;
   body: string;
-  score: number;
+  score?: number | null;
   media?:
     | {
         file: string | Media;
@@ -363,14 +312,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts';
         value: string | Post;
-      } | null)
-    | ({
-        relationTo: 'products';
-        value: string | Product;
-      } | null)
-    | ({
-        relationTo: 'internal-docs';
-        value: string | InternalDoc;
       } | null)
     | ({
         relationTo: 'media';
@@ -480,41 +421,6 @@ export interface PostsSelect<T extends boolean = true> {
         likesCount?: T;
         dislikesCount?: T;
         favouritesCount?: T;
-        ratingsCount?: T;
-        ratingsAverage?: T;
-        reviewsCount?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "products_select".
- */
-export interface ProductsSelect<T extends boolean = true> {
-  name?: T;
-  lfrs?:
-    | T
-    | {
-        likesCount?: T;
-        favouritesCount?: T;
-        ratingsCount?: T;
-        ratingsAverage?: T;
-        reviewsCount?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "internal-docs_select".
- */
-export interface InternalDocsSelect<T extends boolean = true> {
-  title?: T;
-  lfrs?:
-    | T
-    | {
-        likesCount?: T;
         ratingsCount?: T;
         ratingsAverage?: T;
         reviewsCount?: T;

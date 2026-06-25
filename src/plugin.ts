@@ -35,7 +35,7 @@ import { resolveReviewMedia } from './utilities/resolveReviewMedia.js'
  * Uses the standard Payload plugin curried pattern:
  * `(pluginOptions) => (config) => Config`
  */
-export const payloadLfRs =
+export const payloadLFRs =
   (pluginOptions: LfrsPluginConfig) =>
   (config: Config): Config => {
     // Sanitize and validate all plugin options

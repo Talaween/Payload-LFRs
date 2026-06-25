@@ -71,11 +71,6 @@ export const createDistributionEndpoint = (sanitized: SanitizedLfrsConfig): Payl
 
       const average = count > 0 ? Number((totalScore / count).toFixed(2)) : 0
 
-      // Re-fetch target doc to use its cached counts if we want, but the spec says
-      // "Returns count of ratings per score value — powers the Amazon-style rating breakdown bars"
-      // and returns average, totalRatings.
-      // So returning the computed values is fine.
-
       const distributionArray = []
       for (let s = 1; s <= sanitized.rating.max; s += sanitized.rating.step) {
         const scoreStr = s.toString()

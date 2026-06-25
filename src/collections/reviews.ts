@@ -7,7 +7,10 @@ import { isOwner } from '../access/isOwner.js'
 import { isOwnerOrAdmin } from '../access/isOwnerOrAdmin.js'
 import { createEnforceUniqueness } from '../hooks/enforceUniqueness.js'
 import { enforceUser } from '../hooks/enforceUser.js'
-import { createRecalculateAfterChange, createRecalculateAfterDelete } from '../hooks/recalculateAggregates.js'
+import {
+  createRecalculateAfterChange,
+  createRecalculateAfterDelete,
+} from '../hooks/recalculateAggregates.js'
 import { createValidateReviewMedia } from '../hooks/validateReviewMedia.js'
 import { createValidateScore } from '../hooks/validateScore.js'
 import { createValidateTarget } from '../hooks/validateTarget.js'
@@ -152,7 +155,7 @@ export function createReviewsCollection(config: SanitizedLfrsConfig): Collection
     access: {
       create: isAuthenticated,
       delete: isOwnerOrAdmin,
-      read: () => true,
+      read: isOwnerOrAdmin,
       update: isOwner,
     },
     admin: {

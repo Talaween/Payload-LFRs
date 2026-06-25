@@ -6,7 +6,10 @@ import { isAuthenticated } from '../access/isAuthenticated.js'
 import { isOwnerOrAdmin } from '../access/isOwnerOrAdmin.js'
 import { createEnforceUniqueness } from '../hooks/enforceUniqueness.js'
 import { enforceUser } from '../hooks/enforceUser.js'
-import { createRecalculateAfterChange, createRecalculateAfterDelete } from '../hooks/recalculateAggregates.js'
+import {
+  createRecalculateAfterChange,
+  createRecalculateAfterDelete,
+} from '../hooks/recalculateAggregates.js'
 import { createValidateTarget } from '../hooks/validateTarget.js'
 
 /**
@@ -20,7 +23,7 @@ export function createFavouritesCollection(config: SanitizedLfrsConfig): Collect
     access: {
       create: isAuthenticated,
       delete: isOwnerOrAdmin,
-      read: () => true,
+      read: isOwnerOrAdmin,
     },
     admin: {
       defaultColumns: ['user', 'targetCollection', 'targetDoc', 'createdAt'],

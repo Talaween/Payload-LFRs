@@ -283,7 +283,7 @@ export interface LfrsCollectionOptions {
 **With media uploads enabled:**
 
 ```ts
-import { payloadLfRs } from 'payload-lfrs'
+import { payloadLFRs } from 'payload-lfrs'
 
 export default buildConfig({
   collections: [
@@ -298,7 +298,7 @@ export default buildConfig({
     // ... other collections
   ],
   plugins: [
-    payloadLfRs({
+    payloadLFRs({
       collections: {
         posts: { likes: true, favourites: true, ratings: true, reviews: true },
         products: { likes: true, ratings: true, reviews: true },
@@ -319,7 +319,7 @@ export default buildConfig({
 **With custom rating system (half-star hearts out of 10):**
 
 ```ts
-payloadLfRs({
+payloadLFRs({
   collections: {
     restaurants: { ratings: true, reviews: true },
   },
@@ -334,7 +334,7 @@ payloadLfRs({
 **With role-based access:**
 
 ```ts
-payloadLfRs({
+payloadLFRs({
   collections: {
     posts: {
       likes: true, // any authenticated user
@@ -355,7 +355,7 @@ payloadLfRs({
 **With custom access function (e.g. purchased products only):**
 
 ```ts
-payloadLfRs({
+payloadLFRs({
   collections: {
     products: {
       likes: true,
@@ -396,7 +396,7 @@ payloadLfRs({
 **Without media uploads (text-only reviews):**
 
 ```ts
-payloadLfRs({
+payloadLFRs({
   collections: {
     recipes: { likes: true, favourites: true, reviews: true },
   },
@@ -407,7 +407,7 @@ payloadLfRs({
 **With incomplete media config (graceful fallback):**
 
 ```ts
-payloadLfRs({
+payloadLFRs({
   collections: { posts: { reviews: true } },
   reviewMedia: {
     uploadCollection: 'non-existent-collection', // ← not in config
@@ -911,7 +911,7 @@ Response: {
 
 #### `afterChange` (on likes, dislikes, favourites, ratings, reviews)
 
-- **Recalculate aggregates**: Count all interactions for `targetCollection` + `targetDoc`, then update the target doc's `lfrs` group fields. *Note: The `like`, `dislike`, and `favourite` endpoints bypass this hook by passing `skipLfrsHooks: true` and update their specific counts directly for better performance.*
+- **Recalculate aggregates**: Count all interactions for `targetCollection` + `targetDoc`, then update the target doc's `lfrs` group fields. _Note: The `like`, `dislike`, and `favourite` endpoints bypass this hook by passing `skipLfrsHooks: true` and update their specific counts directly for better performance._
 - **Use `req`** for transaction safety
 - **Use `context.skipLfrsHooks`** to prevent infinite loops when updating target doc
 
