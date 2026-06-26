@@ -176,6 +176,10 @@ The slug of your users collection for authentication (default: `'users'`).
 
 The group name under which the LFRs collections will appear in the Admin UI (default: `'LFRs'`).
 
+### `adminControls`
+
+Set to `false` to completely hide the plugin's collections, global settings, and moderation views from the Payload Admin panel (default: `true`). This is useful if you want to handle all interactions purely via the API or your own custom interfaces.
+
 ### `disabled`
 
 Set to `true` to completely disable the plugin's features without uninstalling it or losing data (default: `false`).

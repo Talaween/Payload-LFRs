@@ -197,6 +197,13 @@ export interface LfrsCallbacks {
 
 export interface LfrsPluginConfig {
   /**
+   * Whether to generate admin controls and UI components.
+   * If false, hides the settings global and skips admin views.
+   * Default: true
+   */
+  adminControls?: boolean
+
+  /**
    * Admin UI group name (default: 'LFRs')
    */
   adminGroup?: string
@@ -268,6 +275,7 @@ export interface LfrsPluginConfig {
  * Used internally by the plugin — not exposed to consumers.
  */
 export interface SanitizedLfrsConfig {
+  adminControls: boolean
   adminGroup: string
   collections: Record<string, SanitizedCollectionOptions>
   collectionSlugs: Required<NonNullable<LfrsPluginConfig['collectionSlugs']>>

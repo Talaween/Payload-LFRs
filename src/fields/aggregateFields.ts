@@ -80,8 +80,9 @@ export function createAggregateFields(
     admin: {
       position: 'sidebar',
       readOnly: true,
+      hidden: _config.adminControls === false ? true : undefined,
       // Always show in sidebar (even when empty — keeps schema consistent)
-      components: {
+      components: _config.adminControls === false ? undefined : {
         Field: 'payload-lfrs/admin#LfrsStatusWidget',
       },
       condition: () => true,

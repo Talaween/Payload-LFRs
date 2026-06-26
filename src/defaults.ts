@@ -139,6 +139,7 @@ export function sanitizePluginConfig(input: LfrsPluginConfig): SanitizedLfrsConf
   const repliesEnabled = Object.values(collections).some((c) => isFeatureEnabled(c.replies))
 
   return {
+    adminControls: input.adminControls ?? true,
     adminGroup: input.adminGroup ?? DEFAULT_ADMIN_GROUP,
     collections,
     collectionSlugs,

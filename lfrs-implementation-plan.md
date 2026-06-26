@@ -116,6 +116,13 @@ export interface LfrsPluginConfig {
   }
 
   /**
+   * Whether to generate admin controls and UI components.
+   * If false, hides the settings global and skips admin views.
+   * Default: true
+   */
+  adminControls?: boolean
+
+  /**
    * Admin UI group name (default: 'LFRs')
    */
   adminGroup?: string

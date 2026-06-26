@@ -88,6 +88,7 @@ export function createLfrsSettingsGlobal(sanitized: SanitizedLfrsConfig): Global
     },
     admin: {
       group: sanitized.adminGroup,
+      hidden: sanitized.adminControls === false ? true : undefined,
     },
     hooks: {
       afterChange: [
