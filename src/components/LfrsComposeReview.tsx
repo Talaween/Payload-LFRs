@@ -91,6 +91,7 @@ export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
           id: targetDoc,
           body,
           collection: targetCollection,
+          reviewId: initialData?.id,
           score: enableReviewRating ? score : undefined,
           title,
           // media arrays would go here if we implemented the upload flow
@@ -122,7 +123,7 @@ export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
       
       {error && <div style={{ color: 'var(--lfrs-dislike-active)', fontSize: '14px' }}>{error}</div>}
 
-      {enableReviewRating && (
+      {enableReviewRating && !initialData?.id && (
         <div style={{ alignItems: 'center', display: 'flex', gap: '8px' }}>
           <span>Rating:</span>
           <LfrsRating

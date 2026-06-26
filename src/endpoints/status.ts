@@ -51,6 +51,7 @@ export const createStatusEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
         ratingsEnabled: enabledFeatures.has('ratings'),
         repliesEnabled: enabledFeatures.has('replies'),
         reviewsEnabled: enabledFeatures.has('reviews'),
+        currentUserId: userId,
       }
 
       if (!userId) {

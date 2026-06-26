@@ -28,6 +28,10 @@ export interface LfrsReviewCardProps {
   review: any
   /** Optional inline styles to apply to the card container */
   style?: React.CSSProperties
+  /** The currently logged-in user's ID, to determine ownership */
+  currentUserId?: string
+  /** Callback triggered when the edit button is clicked */
+  onEdit?: (review: any) => void
 }
 
 /**
@@ -53,11 +57,14 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
     repliesEnabled = false,
     review,
     style,
+    currentUserId,
+    onEdit,
   }) => {
     const [isReplying, setIsReplying] = useState(false)
 
     const authorName = review.user?.name || review.user?.email || 'Anonymous'
     const dateStr = formatRelativeTime(review.createdAt)
+    const isOwner = currentUserId && (review.user === currentUserId || review.user?.id === currentUserId)
 
     const handleReplySuccess = () => {
       setIsReplying(false)
@@ -105,15 +112,26 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
           </div>
         )}
 
-        {repliesEnabled && (
+        {(repliesEnabled || isOwner) && (
           <div className={styles.reviewActions}>
-            <button
-              className={styles.buttonText}
-              onClick={() => setIsReplying(!isReplying)}
-              type="button"
-            >
-              Reply
-            </button>
+            {repliesEnabled && (
+              <button
+                className={styles.buttonText}
+                onClick={() => setIsReplying(!isReplying)}
+                type="button"
+              >
+                Reply
+              </button>
+            )}
+            {isOwner && onEdit && (
+              <button
+                className={styles.buttonText}
+                onClick={() => onEdit(review)}
+                type="button"
+              >
+                Edit
+              </button>
+            )}
           </div>
         )}
 

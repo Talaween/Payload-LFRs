@@ -56,7 +56,9 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
-  const [showCompose, setShowCompose] = useState(false)
+  const [composeMode, setComposeMode] = useState<'create' | 'edit' | null>(null)
+  const [editingReview, setEditingReview] = useState<any>(null)
+  const showCompose = composeMode !== null
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -106,21 +108,24 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
   }, [fetchStatus, fetchReviews])
 
   const handleReviewSuccess = useCallback(() => {
-    setShowCompose(false)
+    setComposeMode(null)
     void fetchStatus()
     void fetchReviews(1)
     // Dispatch an event so other components (like LfrsRatingSummary) know to refetch
     window.dispatchEvent(new Event('lfrs-review-added'))
   }, [fetchStatus, fetchReviews])
 
-  const handleCancelCompose = useCallback(() => setShowCompose(false), [])
+  const handleCancelCompose = useCallback(() => setComposeMode(null), [])
 
   const handleReplySuccess = useCallback(async () => {
     await fetchReviews(page)
   }, [fetchReviews, page])
 
-  const handleEditReview = useCallback(() => setShowCompose(true), [])
-  const handleWriteReview = useCallback(() => setShowCompose(true), [])
+  const handleEditReview = useCallback((review: any) => {
+    setEditingReview(review)
+    setComposeMode('edit')
+  }, [])
+  const handleWriteReview = useCallback(() => setComposeMode('create'), [])
 
   if (statusLoading && reviewsLoading) {
     return (
@@ -152,19 +157,13 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
           <h3>Your Review</h3>
           <LfrsReviewCard
             apiBase={apiBase}
+            currentUserId={status.currentUserId}
+            onEdit={handleEditReview}
             onReplySuccess={handleReplySuccess}
             ratingConfig={status.ratingConfig}
             repliesEnabled={status.repliesEnabled}
             review={status.review}
           />
-          <button
-            className={`${styles.button} ${styles.buttonSecondary}`}
-            onClick={handleEditReview}
-            style={{ marginTop: '12px' }}
-            type="button"
-          >
-            Edit Review
-          </button>
         </div>
       )}
 
@@ -173,7 +172,7 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
           <LfrsComposeReview
             apiBase={apiBase}
             enableReviewRating={status.enableReviewRating}
-            initialData={hasMyReview && !status?.allowMultipleReviews ? status.review : undefined}
+            initialData={composeMode === 'edit' ? editingReview : undefined}
             mediaEnabled={status.mediaEnabled}
             onAuthError={onAuthError}
             onCancel={handleCancelCompose}
@@ -191,8 +190,10 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
           .map((review) => (
             <LfrsReviewCard
               apiBase={apiBase}
+              currentUserId={status?.currentUserId}
               key={review.id}
               onAuthError={onAuthError}
+              onEdit={handleEditReview}
               onReplySuccess={handleReplySuccess}
               ratingConfig={status?.ratingConfig || { icon: 'star', max: 5, step: 1 }}
               repliesEnabled={status?.repliesEnabled}

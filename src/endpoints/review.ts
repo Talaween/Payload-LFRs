@@ -9,7 +9,7 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
   return async (req: PayloadRequest) => {
     try {
       const body = req.json ? await req.json() : req.body
-      const { id, body: reviewBody, collection, media, score, title } = body || {}
+      const { id, body: reviewBody, collection, media, score, title, reviewId } = body || {}
 
       if (!collection || !id || !reviewBody) {
         throw new APIError('Missing collection, id, or body', 400)
@@ -88,10 +88,22 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
 
       let reviewDoc: any
 
-      if (existingReviews.docs.length > 0 && !collectionOptions.allowMultipleReviews) {
+      let reviewToUpdateId: string | undefined
+
+      if (reviewId) {
+        const ownsReview = existingReviews.docs.some((r) => String(r.id) === String(reviewId))
+        if (!ownsReview) {
+          throw new APIError('Review not found or not owned by user', 404)
+        }
+        reviewToUpdateId = reviewId
+      } else if (existingReviews.docs.length > 0 && !collectionOptions.allowMultipleReviews) {
+        reviewToUpdateId = existingReviews.docs[0].id as string
+      }
+
+      if (reviewToUpdateId) {
         // Update existing review
         reviewDoc = await req.payload.update({
-          id: existingReviews.docs[0].id as string,
+          id: reviewToUpdateId,
           collection: sanitized.collectionSlugs.reviews,
           data: dataToSave,
           overrideAccess: true,
