@@ -3,6 +3,10 @@ import { APIError, type PayloadHandler, type PayloadRequest } from 'payload'
 import type { SanitizedLfrsConfig } from '../types.js'
 
 import { getEnabledFeatures } from '../utilities/getEnabledFeatures.js'
+import {
+  getMergedCollectionSettings,
+  getMergedGlobalSettings,
+} from '../utilities/getMergedSettings.js'
 
 export const createStatusEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHandler => {
   return async (req: PayloadRequest) => {
@@ -37,16 +41,22 @@ export const createStatusEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
       }
 
       const enabledFeatures = await getEnabledFeatures(collectionOptions, collection, req)
+      const mergedCollectionSettings = await getMergedCollectionSettings(
+        collectionOptions,
+        collection,
+        req,
+      )
+      const mergedGlobalSettings = await getMergedGlobalSettings(sanitized, req)
 
       const response: any = {
-        allowMultipleReviews: collectionOptions.allowMultipleReviews,
+        allowMultipleReviews: mergedCollectionSettings.allowMultipleReviews,
         dislikesCount,
         dislikesEnabled: enabledFeatures.has('dislikes'),
-        enableReviewRating: collectionOptions.enableReviewRating,
+        enableReviewRating: mergedCollectionSettings.enableReviewRating,
         favouritesEnabled: enabledFeatures.has('favourites'),
         likesCount,
         likesEnabled: enabledFeatures.has('likes'),
-        mediaEnabled: sanitized.mediaEnabled,
+        mediaEnabled: mergedGlobalSettings.mediaEnabled,
         ratingConfig: sanitized.rating,
         ratingsEnabled: enabledFeatures.has('ratings'),
         repliesEnabled: enabledFeatures.has('replies'),

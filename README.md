@@ -185,6 +185,14 @@ When `disabled: true`, the plugin will continue to register its collections and 
 
 Override the default slugs for the internal collections created by the plugin (`likes`, `dislikes`, `favourites`, `ratings`, `reviews`, `replies`).
 
+### Admin UI Runtime Controls (`LfrsSettings`)
+
+The plugin automatically generates a **Payload Global** named `LFRs Settings` in the admin panel. This allows administrators to temporarily enable/disable features on the fly without changing code or restarting the server. 
+
+**Important:** The admin controls are strictly generated based on the developer's static config (`payload.config.ts`).
+- An admin **cannot** turn on a feature (like `Reviews`) if the developer explicitly set it to `false` in the code.
+- Admin overrides (e.g., turning off Moderation or disabling Likes during a spam attack) are instantly synced with the frontend UI and the REST API securely blocks all associated mutations.
+
 ### `callbacks`
 
 Hook into user interactions and moderation state changes to trigger custom business logic (e.g., sending email notifications, awarding points, syncing with external systems). All callbacks can be asynchronous.

@@ -3,6 +3,10 @@ import { APIError, type PayloadHandler, type PayloadRequest } from 'payload'
 import type { SanitizedLfrsConfig } from '../types.js'
 
 import { getEnabledFeatures } from '../utilities/getEnabledFeatures.js'
+import {
+  getMergedCollectionSettings,
+  getMergedGlobalSettings,
+} from '../utilities/getMergedSettings.js'
 import { resolveFeatureAccess } from '../utilities/resolveFeatureAccess.js'
 
 export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHandler => {
@@ -20,7 +24,14 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
         throw new APIError('LFRs is not enabled for this collection', 404)
       }
 
-      const enableReviewRating = collectionOptions.enableReviewRating ?? true
+      const mergedGlobalSettings = await getMergedGlobalSettings(sanitized, req)
+      const mergedCollectionSettings = await getMergedCollectionSettings(
+        collectionOptions,
+        collection,
+        req,
+      )
+
+      const enableReviewRating = mergedCollectionSettings.enableReviewRating
       if (enableReviewRating && typeof score !== 'number') {
         throw new APIError('Missing valid score', 400)
       }
@@ -76,14 +87,15 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
         body: reviewBody,
         score,
         title,
+        ...(mergedGlobalSettings.reviewModeration
+          ? { status: 'pending' }
+          : sanitized.reviewModeration
+            ? { status: 'approved' }
+            : {}),
       }
 
-      if (sanitized.mediaEnabled && Array.isArray(media)) {
+      if (mergedGlobalSettings.mediaEnabled && Array.isArray(media)) {
         dataToSave.media = media.map((fileId) => ({ file: fileId }))
-      }
-
-      if (sanitized.reviewModeration) {
-        dataToSave.status = 'pending'
       }
 
       let reviewDoc: any
@@ -96,7 +108,10 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
           throw new APIError('Review not found or not owned by user', 404)
         }
         reviewToUpdateId = reviewId
-      } else if (existingReviews.docs.length > 0 && !collectionOptions.allowMultipleReviews) {
+      } else if (
+        existingReviews.docs.length > 0 &&
+        !mergedCollectionSettings.allowMultipleReviews
+      ) {
         reviewToUpdateId = existingReviews.docs[0].id as string
       }
 

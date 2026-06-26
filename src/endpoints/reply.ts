@@ -3,6 +3,7 @@ import { APIError, type PayloadHandler, type PayloadRequest } from 'payload'
 import type { SanitizedLfrsConfig } from '../types.js'
 
 import { getEnabledFeatures } from '../utilities/getEnabledFeatures.js'
+import { getMergedGlobalSettings } from '../utilities/getMergedSettings.js'
 import { resolveFeatureAccess } from '../utilities/resolveFeatureAccess.js'
 
 export const createReplyEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHandler => {
@@ -67,14 +68,17 @@ export const createReplyEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHand
         throw new APIError('Authentication required', 401)
       }
 
+      const mergedGlobalSettings = await getMergedGlobalSettings(sanitized, req)
+
       const dataToSave: any = {
         body: replyBody,
         review: reviewId,
         user: userId,
-      }
-
-      if (sanitized.reviewModeration) {
-        dataToSave.status = 'pending'
+        ...(mergedGlobalSettings.reviewModeration
+          ? { status: 'pending' }
+          : sanitized.reviewModeration
+            ? { status: 'approved' }
+            : {}),
       }
 
       let replyDoc: any
@@ -104,7 +108,7 @@ export const createReplyEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHand
         replyDoc = await req.payload.update({
           id: replyId,
           collection: sanitized.collectionSlugs.replies,
-          data: { body: replyBody, ...(sanitized.reviewModeration ? { status: 'pending' } : {}) },
+          data: dataToSave,
           overrideAccess: true,
           req,
         })

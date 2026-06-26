@@ -9,7 +9,25 @@ import { invalidateLfrsSettingsCache } from '../utilities/lfrsSettingsCache.js'
 export const lfrsSettingsSlug = 'lfrs-settings'
 
 export function createLfrsSettingsGlobal(sanitized: SanitizedLfrsConfig): GlobalConfig {
-  const fields: GroupField[] = []
+  const fields: any[] = []
+
+  if (sanitized.reviewModeration) {
+    fields.push({
+      name: 'reviewModeration',
+      type: 'checkbox',
+      label: 'Enable Review Moderation',
+      defaultValue: true,
+    })
+  }
+
+  if (sanitized.mediaEnabled) {
+    fields.push({
+      name: 'enableReviewMedia',
+      type: 'checkbox',
+      label: 'Enable Review Media Attachments',
+      defaultValue: true,
+    })
+  }
 
   for (const [slug, options] of Object.entries(sanitized.collections)) {
     const collectionFields: CheckboxField[] = []
@@ -31,6 +49,24 @@ export function createLfrsSettingsGlobal(sanitized: SanitizedLfrsConfig): Global
     checkAndAdd('ratings', 'Ratings')
     checkAndAdd('reviews', 'Reviews')
     checkAndAdd('replies', 'Replies')
+
+    if (options.allowMultipleReviews) {
+      collectionFields.push({
+        name: 'allowMultipleReviews',
+        type: 'checkbox',
+        label: 'Allow Multiple Reviews',
+        defaultValue: true,
+      })
+    }
+
+    if (options.enableReviewRating) {
+      collectionFields.push({
+        name: 'enableReviewRating',
+        type: 'checkbox',
+        label: 'Require Rating in Reviews',
+        defaultValue: true,
+      })
+    }
 
     if (collectionFields.length > 0) {
       fields.push({

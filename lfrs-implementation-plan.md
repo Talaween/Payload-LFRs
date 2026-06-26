@@ -417,6 +417,16 @@ payloadLFRs({
 })
 ```
 
+### 3.1 Admin UI Runtime Controls (`LfrsSettings`)
+
+To allow administrators to toggle features dynamically without modifying the codebase or requiring a server restart, the plugin dynamically creates a Payload Global named `LfrsSettings` (`lfrs-settings`).
+
+**How it works:**
+1. The global schema is generated dynamically based on the static `LfrsPluginConfig`.
+2. Admin toggles are only injected into the global if the developer initially enabled the feature in code. This ensures the admin cannot turn on a feature (like `reviews`) if the UI/schema isn't built for it.
+3. Endpoints securely merge the static developer config with the cached Admin global config. If an admin disables a feature, the API instantly blocks mutations (`404`/`403`) and the React UI components automatically hide the corresponding forms/buttons.
+4. If moderation is disabled by the admin at runtime, the API automatically bypasses the database schema's default `pending` status by explicitly saving reviews and replies as `approved`.
+
 ---
 
 ## 4. Plugin-Created Collections
