@@ -6,15 +6,39 @@ import { LfrsComposeReview } from './LfrsComposeReview.js'
 import { LfrsReviewCard } from './LfrsReviewCard.js'
 import styles from './styles/lfrs.module.css'
 
+/**
+ * Props for the `LfrsReviewsSection` component.
+ */
 export interface LfrsReviewsSectionProps {
+  /** The base path of the REST API (defaults to '/api') */
   apiBase?: string
+  /** Optional CSS class name to apply to the section container */
   className?: string
+  /** Callback triggered when the API returns a 401 Unauthorized status */
   onAuthError?: () => void
+  /** Optional inline styles to apply to the section container */
   style?: React.CSSProperties
+  /** The slug of the Payload CMS collection containing the reviewed item */
   targetCollection: string
+  /** The unique ID of the target document */
   targetDoc: string
 }
 
+/**
+ * `LfrsReviewsSection` is the primary orchestrator for displaying, writing, and listing reviews for an item.
+ * 
+ * **Component Purpose:**
+ * - Fetches user interaction status and existing reviews from the backend.
+ * - Separates and highlights the current user's review as "Your Review" with editing options.
+ * - Coordinates toggling the `LfrsComposeReview` form for creating/editing reviews.
+ * - Handles paginated review list fetching with a "Load More" action.
+ * - Dispatches a window-level custom `lfrs-review-added` event when a review is submitted.
+ * 
+ * **User Interaction:**
+ * - **Writing/Editing:** Clicking "Write a Review" or "Edit Review" opens the creation/edit form.
+ * - **Pagination:** Clicking "Load More" appends the next page of reviews to the list.
+ * - **Card Interactions:** Supports opening replies on nested review cards.
+ */
 export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
   apiBase = '/api',
   className = '',
@@ -91,15 +115,19 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
 
   const handleCancelCompose = useCallback(() => setShowCompose(false), [])
 
-  const handleReplySuccess = useCallback(() => {
-    fetchReviews(page)
+  const handleReplySuccess = useCallback(async () => {
+    await fetchReviews(page)
   }, [fetchReviews, page])
 
   const handleEditReview = useCallback(() => setShowCompose(true), [])
   const handleWriteReview = useCallback(() => setShowCompose(true), [])
 
   if (statusLoading && reviewsLoading) {
-    return <div className={`${styles.reviewsSection} ${className}`} style={style}>Loading reviews...</div>
+    return (
+      <div className={`${styles.reviewsSection} ${className}`} style={style}>
+        Loading reviews...
+      </div>
+    )
   }
 
   const hasMyReview = !!status?.review

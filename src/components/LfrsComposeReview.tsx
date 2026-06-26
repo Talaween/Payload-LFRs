@@ -5,25 +5,53 @@ import React, { useState } from 'react'
 import { LfrsRating } from './LfrsRating.js'
 import styles from './styles/lfrs.module.css'
 
+/**
+ * Props for the `LfrsComposeReview` component.
+ */
 export interface LfrsComposeReviewProps {
+  /** The base path of the REST API (defaults to '/api') */
   apiBase?: string
+  /** Optional CSS class name to apply to the root form element */
   className?: string
+  /** Pre-filled review data used when editing an existing review */
   initialData?: {
     body?: string
     id?: string
     score?: number
     title?: string
   }
+  /** Whether rating selection (e.g. stars) is enabled (defaults to true) */
   enableReviewRating?: boolean
+  /** Whether media file uploads are enabled (defaults to false) */
   mediaEnabled?: boolean
+  /** Callback triggered when the API returns a 401 Unauthorized status */
   onAuthError?: () => void
+  /** Callback triggered when the cancel button is clicked. If not provided, the cancel button is omitted. */
   onCancel?: () => void
+  /** Callback triggered after the review is successfully submitted */
   onSuccess?: () => void
+  /** Configuration options for the rating stars/hearts (defaults to 5 stars) */
   ratingConfig?: { icon: string; max: number; step: number }
+  /** The slug of the Payload CMS collection containing the reviewed item (e.g. 'posts', 'products') */
   targetCollection: string
+  /** The unique ID of the specific item being reviewed within targetCollection */
   targetDoc: string
 }
 
+/**
+ * `LfrsComposeReview` is a form component for creating or editing reviews.
+ * 
+ * **Component Purpose:**
+ * - Allows users to write reviews, provide ratings, and add optional titles for specific collection documents.
+ * - Handles API submission to create or update a review.
+ * - Displays error messages and submission states.
+ * 
+ * **User Interaction:**
+ * - **Rating Selection:** Users can click icons (e.g., stars or hearts) to choose their rating (if `enableReviewRating` is true).
+ * - **Input Fields:** Users can enter an optional title and a required review body description.
+ * - **Submitting:** Submitting the form triggers a POST request to `${apiBase}/lfrs/review`.
+ * - **Canceling:** Users can abort composition by clicking the "Cancel" button (if `onCancel` is provided).
+ */
 export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
   apiBase = '/api',
   className = '',

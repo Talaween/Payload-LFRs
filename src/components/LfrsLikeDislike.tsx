@@ -4,22 +4,36 @@ import React, { useEffect, useState } from 'react'
 
 import styles from './styles/lfrs.module.css'
 
+/**
+ * Props for the `LfrsLikeDislike` component.
+ */
 export interface LfrsLikeDislikeProps {
+  /** The base path of the REST API (defaults to '/api') */
   apiBase?: string
+  /** Optional CSS class name to apply to the container */
   className?: string
+  /** Initial state for the disliked flag (defaults to undefined) */
   initialDisliked?: boolean
+  /** Initial count of dislikes (defaults to undefined) */
   initialDislikesCount?: number
+  /** Initial state for the liked flag (defaults to undefined) */
   initialLiked?: boolean
+  /** Initial count of likes (defaults to undefined) */
   initialLikesCount?: number
+  /** Callback triggered when the API returns a 401 Unauthorized status */
   onAuthError?: () => void
+  /** Callback triggered when the like/dislike state changes */
   onToggle?: (state: {
     disliked: boolean
     dislikesCount: number
     liked: boolean
     likesCount: number
   }) => void
+  /** Optional inline styles to apply to the container */
   style?: React.CSSProperties
+  /** The slug of the Payload CMS collection containing the item being liked/disliked */
   targetCollection: string
+  /** The unique ID of the target document */
   targetDoc: string
 }
 
@@ -49,6 +63,19 @@ const ThumbsDownIcon = () => (
   </svg>
 )
 
+/**
+ * `LfrsLikeDislike` is a component for liking or disliking items.
+ * 
+ * **Component Purpose:**
+ * - Manages and renders a dual-state (Like and Dislike) rating widget.
+ * - Dynamically shows/hides likes or dislikes based on the server-provided configuration.
+ * - Handles optimistic updates and syncs counts and states with the backend.
+ * 
+ * **User Interaction:**
+ * - **Liking:** Clicking the Like thumb button increments the count (or decrements if already liked). If disliked previously, it clears the dislike.
+ * - **Disliking:** Clicking the Dislike thumb button toggles the dislike state, resetting the like state if active.
+ * - **UI Response:** Updates immediately on click. If the API request (`/api/lfrs/like` or `/api/lfrs/dislike`) fails, it rolls back to the previous state.
+ */
 export const LfrsLikeDislike: React.FC<LfrsLikeDislikeProps> = ({
   apiBase = '/api',
   className = '',
@@ -102,7 +129,15 @@ export const LfrsLikeDislike: React.FC<LfrsLikeDislikeProps> = ({
         }
       })
       .catch(() => {})
-  }, [apiBase, initialLiked, initialDisliked, targetCollection, targetDoc])
+  }, [
+    apiBase,
+    initialLiked,
+    initialDisliked,
+    targetCollection,
+    targetDoc,
+    initialDislikesCount,
+    initialLikesCount,
+  ])
 
   const handleToggle = async (type: 'dislike' | 'like') => {
     if (loading) {
@@ -182,7 +217,10 @@ export const LfrsLikeDislike: React.FC<LfrsLikeDislikeProps> = ({
   }
 
   return (
-    <div className={`${styles.likeDislikeGroup} ${className}`} style={{ display: 'inline-flex', gap: '8px', ...style }}>
+    <div
+      className={`${styles.likeDislikeGroup} ${className}`}
+      style={{ display: 'inline-flex', gap: '8px', ...style }}
+    >
       {likesEnabled && (
         <button
           aria-label={liked ? 'Unlike' : 'Like'}

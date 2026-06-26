@@ -4,14 +4,25 @@ import React, { useEffect, useState } from 'react'
 
 import styles from './styles/lfrs.module.css'
 
+/**
+ * Props for the `LfrsFavourite` component.
+ */
 export interface LfrsFavouriteProps {
+  /** The base path of the REST API (defaults to '/api') */
   apiBase?: string
+  /** Optional CSS class name to apply to the toggle button */
   className?: string
+  /** The initial favourited state. If undefined, it will fetch from the server. */
   initialFavourited?: boolean
+  /** Callback triggered when the API returns a 401 Unauthorized status */
   onAuthError?: () => void
+  /** Callback triggered after a toggle operation completes on the server */
   onToggle?: (favourited: boolean) => void
+  /** Optional inline styles to apply to the button */
   style?: React.CSSProperties
+  /** The slug of the Payload CMS collection for the target document */
   targetCollection: string
+  /** The unique ID of the target document */
   targetDoc: string
 }
 
@@ -21,6 +32,18 @@ const BookmarkIcon = ({ active }: { active?: boolean }) => (
   </svg>
 )
 
+/**
+ * `LfrsFavourite` is an interactive toggle button for bookmarking or favouriting items.
+ * 
+ * **Component Purpose:**
+ * - Tracks and displays whether a document is added to the user's favourites.
+ * - Auto-fetches current status if no initial value is provided.
+ * - Handles API interactions to toggle the state.
+ * 
+ * **User Interaction:**
+ * - **Toggling:** Clicking the button triggers an optimistic UI change and makes a POST request to `${apiBase}/lfrs/favourite`.
+ * - **Error Handling:** If the API request fails, the component automatically reverts to its previous favourited state.
+ */
 export const LfrsFavourite: React.FC<LfrsFavouriteProps> = ({
   apiBase = '/api',
   className = '',

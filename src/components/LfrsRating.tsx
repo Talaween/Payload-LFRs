@@ -4,13 +4,23 @@ import React, { useState } from 'react'
 
 import styles from './styles/lfrs.module.css'
 
+/**
+ * Props for the `LfrsRating` component.
+ */
 export interface LfrsRatingProps {
+  /** Optional CSS class name to apply to the rating container */
   className?: string
+  /** The type of icon to render ('star' | 'heart'; defaults to 'star') */
   icon?: string
+  /** The maximum rating value / number of icons (defaults to 5) */
   max?: number
+  /** Callback triggered when a rating icon is clicked (only when readonly is false) */
   onChange?: (value: number) => void
+  /** If true, interactions (hover and click) are disabled (defaults to false) */
   readonly?: boolean
+  /** The configuration step value (defaults to 1) */
   step?: number
+  /** The current rating value (defaults to 0) */
   value?: number
 }
 
@@ -32,6 +42,18 @@ const HeartIcon = ({ active }: { active?: boolean }) => (
   </svg>
 )
 
+/**
+ * `LfrsRating` is a star or heart rating rendering component.
+ * 
+ * **Component Purpose:**
+ * - Displays a row of icons (stars or hearts) representing a numeric rating.
+ * - Supports both read-only display mode and interactive input mode.
+ * 
+ * **User Interaction:**
+ * - **Hovering:** When `readonly` is false, hovering over icons temporarily updates the filled icons to reflect the hovered rating.
+ * - **Clicking:** Clicking an icon selects that rating, calling the `onChange` callback.
+ * - **Read-only Mode:** When `readonly` is true, hover effects are disabled, and clicking has no effect.
+ */
 export const LfrsRating: React.FC<LfrsRatingProps> = ({
   className = '',
   icon = 'star',

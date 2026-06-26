@@ -5,11 +5,19 @@ import React, { useEffect, useState } from 'react'
 import { LfrsRating } from './LfrsRating.js'
 import styles from './styles/lfrs.module.css'
 
+/**
+ * Props for the `LfrsRatingSummary` component.
+ */
 export interface LfrsRatingSummaryProps {
+  /** The base path of the REST API (defaults to '/api') */
   apiBase?: string
+  /** Optional CSS class name to apply to the container */
   className?: string
+  /** Optional inline styles to apply to the container */
   style?: React.CSSProperties
+  /** The slug of the Payload CMS collection containing the reviewed item */
   targetCollection: string
+  /** The unique ID of the target document */
   targetDoc: string
 }
 
@@ -28,6 +36,18 @@ interface DistributionData {
   totalRatings: number
 }
 
+/**
+ * `LfrsRatingSummary` renders the average rating and breakdown of ratings for a specific item.
+ * 
+ * **Component Purpose:**
+ * - Fetches rating breakdown stats from the `${apiBase}/lfrs/distribution` endpoint.
+ * - Displays the average score alongside a read-only `LfrsRating` indicator.
+ * - Renders a horizontal bar breakdown of rating percentages (e.g. 5-star, 4-star distribution).
+ * - Listens for the custom `lfrs-review-added` window event to automatically refetch when reviews update.
+ * 
+ * **User Interaction:**
+ * - This component is **read-only** and does not support direct user interactions.
+ */
 export const LfrsRatingSummary: React.FC<LfrsRatingSummaryProps> = ({
   apiBase = '/api',
   className = '',

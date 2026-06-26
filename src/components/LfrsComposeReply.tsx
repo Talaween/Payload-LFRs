@@ -4,15 +4,38 @@ import React, { useState } from 'react'
 
 import styles from './styles/lfrs.module.css'
 
+/**
+ * Props for the `LfrsComposeReply` component.
+ */
 export interface LfrsComposeReplyProps {
+  /** The base path of the REST API (defaults to '/api') */
   apiBase?: string
+  /** Optional CSS class name to apply to the root form element */
   className?: string
+  /** Callback triggered when the API returns a 401 Unauthorized status */
   onAuthError?: () => void
+  /** Callback triggered when the cancel button is clicked. If not provided, the cancel button is omitted. */
   onCancel?: () => void
+  /** Callback triggered after a reply is successfully submitted */
   onSuccess?: () => void
+  /** The unique identifier of the review being replied to */
   reviewId: string
 }
 
+/**
+ * `LfrsComposeReply` is a form component for composing and submitting a reply to a review.
+ * 
+ * **Component Purpose:**
+ * - Allows users to write comments/replies to existing reviews.
+ * - Handles the API submission to the reply endpoint.
+ * - Displays error messages and submission/loading states.
+ * 
+ * **User Interaction:**
+ * - **Typing:** Users can enter their reply in the required textarea.
+ * - **Submitting:** Submitting the form triggers an asynchronous POST request to `${apiBase}/lfrs/reply`.
+ * - **Canceling:** Users can abort composing by clicking the "Cancel" button (if `onCancel` is provided).
+ * - **State Feedback:** The submit button disables during loading or when the input is empty/whitespace.
+ */
 export const LfrsComposeReply: React.FC<LfrsComposeReplyProps> = ({
   apiBase = '/api',
   className = '',

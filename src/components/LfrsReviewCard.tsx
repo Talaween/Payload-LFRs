@@ -8,17 +8,41 @@ import { LfrsReplyCard } from './LfrsReplyCard.js'
 import styles from './styles/lfrs.module.css'
 import { formatRelativeTime } from '../utilities/formatRelativeTime.js'
 
+/**
+ * Props for the `LfrsReviewCard` component.
+ */
 export interface LfrsReviewCardProps {
+  /** The base path of the REST API (defaults to '/api') */
   apiBase?: string
+  /** Optional CSS class name to apply to the card container */
   className?: string
+  /** Callback triggered when the API returns a 401 Unauthorized status */
   onAuthError?: () => void
+  /** Callback triggered after a nested reply is successfully submitted */
   onReplySuccess?: () => void
+  /** Configuration settings for displaying ratings (icon shape, scale max, step increments) */
   ratingConfig: { icon: string; max: number; step: number }
+  /** Whether the user is allowed to reply to this review (defaults to false) */
   repliesEnabled?: boolean
+  /** The review details object (contains user info, body text, title, rating score, media list, and existing replies list) */
   review: any
+  /** Optional inline styles to apply to the card container */
   style?: React.CSSProperties
 }
 
+/**
+ * `LfrsReviewCard` displays a review including user metadata, body, score rating, and media attachments.
+ * 
+ * **Component Purpose:**
+ * - Formats and displays a review's rating score (via `LfrsRating`), title, description, and relative timestamp.
+ * - Renders a grid of attached media images (if any).
+ * - Renders a list of nested replies (via `LfrsReplyCard`).
+ * - Manages an inline reply form toggle.
+ * 
+ * **User Interaction:**
+ * - **Toggling Reply Form:** Click the "Reply" action link (if `repliesEnabled` is true) to toggle the compose form (`LfrsComposeReply`).
+ * - **Composing Reply:** Interact with the inline text input and buttons to submit a reply.
+ */
 export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
   ({
     apiBase = '/api',
