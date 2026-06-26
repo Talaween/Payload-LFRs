@@ -68,7 +68,16 @@ export const createInteractionsEndpoint = (sanitized: SanitizedLfrsConfig): Payl
         }
 
         if (sanitized.reviewModeration) {
-          where.and.push({ status: { equals: 'approved' } })
+          if (req.user) {
+            where.and.push({
+              or: [
+                { status: { equals: 'approved' } },
+                { user: { equals: req.user.id } },
+              ],
+            })
+          } else {
+            where.and.push({ status: { equals: 'approved' } })
+          }
         }
 
         const reviews = await req.payload.find({
@@ -93,7 +102,11 @@ export const createInteractionsEndpoint = (sanitized: SanitizedLfrsConfig): Payl
               where: {
                 and: [
                   { review: { equals: review.id } },
-                  ...(sanitized.reviewModeration ? [{ status: { equals: 'approved' } }] : []),
+                  ...(sanitized.reviewModeration
+                    ? req.user
+                      ? [{ or: [{ status: { equals: 'approved' } }, { user: { equals: req.user.id } }] }]
+                      : [{ status: { equals: 'approved' } }]
+                    : []),
                 ],
               },
             })

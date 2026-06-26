@@ -73,6 +73,7 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
     const authorName = review.user?.name || review.user?.email || 'Anonymous'
     const dateStr = formatRelativeTime(review.createdAt)
     const isOwner = currentUserId && (review.user === currentUserId || review.user?.id === currentUserId)
+    const canEdit = isOwner && review.status !== 'approved'
 
     const handleReplySuccess = () => {
       setIsReplying(false)
@@ -96,7 +97,14 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
               </div>
             )}
           </div>
-          <div className={styles.reviewDate}>{dateStr}</div>
+          <div className={styles.reviewDate}>
+            {dateStr}
+            {review.status && (
+              <span className={`${styles.statusBadge} ${styles[`status_${review.status}`]}`}>
+                {review.status}
+              </span>
+            )}
+          </div>
         </div>
 
         {review.title && <h4 className={styles.reviewTitle}>{review.title}</h4>}
@@ -131,7 +139,7 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
                 Reply
               </button>
             )}
-            {isOwner && onEdit && (
+            {canEdit && onEdit && (
               <button
                 className={styles.buttonText}
                 onClick={() => onEdit(review)}

@@ -164,7 +164,11 @@ export const createStatusEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
               where: {
                 and: [
                   { review: { equals: review.id } },
-                  ...(sanitized.reviewModeration ? [{ status: { equals: 'approved' } }] : []),
+                  ...(sanitized.reviewModeration
+                    ? req.user
+                      ? [{ or: [{ status: { equals: 'approved' } }, { user: { equals: req.user.id } }] }]
+                      : [{ status: { equals: 'approved' } }]
+                    : []),
                 ],
               },
             })
