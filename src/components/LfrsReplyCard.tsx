@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 
 import styles from './styles/lfrs.module.css'
 import { formatRelativeTime } from '../utilities/formatRelativeTime.js'
@@ -19,6 +19,8 @@ export interface LfrsReplyCardProps {
   currentUserId?: string
   /** Callback triggered when the edit button is clicked */
   onEdit?: (reply: any) => void
+  /** Callback triggered when the delete button is clicked */
+  onDelete?: (reply: any) => void
 }
 
 /**
@@ -32,7 +34,8 @@ export interface LfrsReplyCardProps {
  * - This component is **read-only** and does not support user interactions.
  */
 export const LfrsReplyCard: React.FC<LfrsReplyCardProps> = React.memo(
-  ({ className = '', currentUserId, onEdit, reply, style }) => {
+  ({ className = '', currentUserId, onDelete, onEdit, reply, style }) => {
+    const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
     const authorName = reply.user?.name || reply.user?.email || 'Anonymous'
     const dateStr = formatRelativeTime(reply.createdAt)
 
@@ -44,15 +47,55 @@ export const LfrsReplyCard: React.FC<LfrsReplyCardProps> = React.memo(
         </div>
         <p className={styles.reviewBody}>{reply.body}</p>
         
-        {currentUserId && (reply.user === currentUserId || reply.user?.id === currentUserId) && onEdit && (
+        {currentUserId && (reply.user === currentUserId || reply.user?.id === currentUserId) && (
           <div className={styles.reviewActions} style={{ marginTop: '8px' }}>
-            <button
-              className={styles.buttonText}
-              onClick={() => onEdit(reply)}
-              type="button"
-            >
-              Edit
-            </button>
+            {onEdit && (
+              <button
+                className={styles.buttonText}
+                onClick={() => onEdit(reply)}
+                type="button"
+              >
+                Edit
+              </button>
+            )}
+            {onDelete && (
+              <button
+                className={styles.buttonText}
+                onClick={() => setIsConfirmingDelete(true)}
+                style={{ color: 'var(--lfrs-dislike-active)' }}
+                type="button"
+              >
+                Delete
+              </button>
+            )}
+          </div>
+        )}
+
+        {isConfirmingDelete && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modalDialog}>
+              <h3 className={styles.modalTitle}>Delete Reply</h3>
+              <p className={styles.modalMessage}>Are you sure you want to delete this reply? This action cannot be undone.</p>
+              <div className={styles.modalActions}>
+                <button
+                  className={`${styles.button} ${styles.modalCancelButton}`}
+                  onClick={() => setIsConfirmingDelete(false)}
+                  type="button"
+                >
+                  Cancel
+                </button>
+                <button
+                  className={`${styles.button} ${styles.modalDeleteButton}`}
+                  onClick={() => {
+                    setIsConfirmingDelete(false)
+                    onDelete?.(reply)
+                  }}
+                  type="button"
+                >
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

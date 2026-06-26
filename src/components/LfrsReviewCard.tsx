@@ -32,6 +32,10 @@ export interface LfrsReviewCardProps {
   currentUserId?: string
   /** Callback triggered when the edit button is clicked */
   onEdit?: (review: any) => void
+  /** Callback triggered when the delete button is clicked */
+  onDelete?: (review: any) => void
+  /** Callback triggered when a reply delete button is clicked */
+  onDeleteReply?: (reply: any) => void
 }
 
 /**
@@ -59,9 +63,12 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
     style,
     currentUserId,
     onEdit,
+    onDelete,
+    onDeleteReply,
   }) => {
     const [isReplying, setIsReplying] = useState(false)
     const [editingReply, setEditingReply] = useState<any>(null)
+    const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
 
     const authorName = review.user?.name || review.user?.email || 'Anonymous'
     const dateStr = formatRelativeTime(review.createdAt)
@@ -133,6 +140,16 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
                 Edit
               </button>
             )}
+            {isOwner && onDelete && (
+              <button
+                className={styles.buttonText}
+                onClick={() => setIsConfirmingDelete(true)}
+                style={{ color: 'var(--lfrs-dislike-active)' }}
+                type="button"
+              >
+                Delete
+              </button>
+            )}
           </div>
         )}
 
@@ -168,11 +185,40 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
                 <LfrsReplyCard 
                   currentUserId={currentUserId}
                   key={reply.id} 
+                  onDelete={onDeleteReply}
                   onEdit={() => setEditingReply(reply)}
                   reply={reply} 
                 />
               )
             ))}
+          </div>
+        )}
+
+        {isConfirmingDelete && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modalDialog}>
+              <h3 className={styles.modalTitle}>Delete Review</h3>
+              <p className={styles.modalMessage}>Are you sure you want to delete this review? This action cannot be undone.</p>
+              <div className={styles.modalActions}>
+                <button
+                  className={`${styles.button} ${styles.modalCancelButton}`}
+                  onClick={() => setIsConfirmingDelete(false)}
+                  type="button"
+                >
+                  Cancel
+                </button>
+                <button
+                  className={`${styles.button} ${styles.modalDeleteButton}`}
+                  onClick={() => {
+                    setIsConfirmingDelete(false)
+                    onDelete?.(review)
+                  }}
+                  type="button"
+                >
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

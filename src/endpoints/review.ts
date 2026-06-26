@@ -141,3 +141,72 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
     }
   }
 }
+
+export const deleteReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHandler => {
+  return async (req: PayloadRequest) => {
+    try {
+      const body = req.json ? await req.json() : req.body
+      const { reviewId } = body || {}
+
+      if (!reviewId) {
+        throw new APIError('Missing reviewId', 400)
+      }
+
+      const userId = req.user?.id
+      if (!userId) {
+        throw new APIError('Authentication required', 401)
+      }
+
+      let existingReview: any
+      try {
+        existingReview = await req.payload.findByID({
+          id: reviewId,
+          collection: sanitized.collectionSlugs.reviews,
+          overrideAccess: true,
+          req,
+        })
+      } catch (_e) {
+        throw new APIError('Review not found', 404)
+      }
+
+      const reviewUserId =
+        typeof existingReview.user === 'object' && existingReview.user !== null
+          ? existingReview.user.id
+          : existingReview.user
+
+      if (String(reviewUserId) !== String(userId)) {
+        throw new APIError('Review not owned by user', 403)
+      }
+
+      let deletedReview: any
+      try {
+        deletedReview = await req.payload.delete({
+          id: reviewId,
+          collection: sanitized.collectionSlugs.reviews,
+          overrideAccess: true,
+          req,
+        })
+      } catch (err: any) {
+        throw new APIError(err.message || 'Error deleting review', 500)
+      }
+
+      const targetCollection = deletedReview.targetCollection
+      const targetDocId = deletedReview.targetDoc
+
+      const updatedDoc = await req.payload.findByID({
+        id: targetDocId as string,
+        collection: targetCollection as string,
+        overrideAccess: true,
+        req,
+      })
+
+      return Response.json({
+        deleted: true,
+        reviewsCount: updatedDoc.lfrs?.reviewsCount || 0,
+      })
+    } catch (err: any) {
+      const status = err.status || 500
+      return Response.json({ error: err.message || 'Internal Server Error' }, { status })
+    }
+  }
+}

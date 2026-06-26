@@ -260,3 +260,64 @@
 .buttonText:hover {
   color: var(--lfrs-text, #333333);
 }
+
+/* Modal / Dialog */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--lfrs-modal-overlay, rgba(0, 0, 0, 0.5));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalDialog {
+  background: var(--lfrs-modal-bg, var(--lfrs-bg, #ffffff));
+  font-family: var(--lfrs-font-family, inherit);
+  padding: 24px;
+  border-radius: var(--lfrs-radius, 6px);
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modalTitle {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--lfrs-modal-title-color, var(--lfrs-text, #333333));
+}
+
+.modalMessage {
+  margin: 0 0 24px 0;
+  font-size: 14px;
+  color: var(--lfrs-modal-text-color, var(--lfrs-text-muted, #666666));
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modalCancelButton {
+  background: var(--lfrs-modal-cancel-bg, var(--lfrs-border, #e0e0e0));
+  color: var(--lfrs-modal-cancel-text, var(--lfrs-text, #333333));
+}
+
+.modalCancelButton:hover {
+  background: var(--lfrs-modal-cancel-bg-hover, var(--lfrs-border, #d0d0d0));
+}
+
+.modalDeleteButton {
+  background: var(--lfrs-modal-delete-bg, var(--lfrs-dislike-active, #dc3545));
+  color: var(--lfrs-modal-delete-text, #ffffff);
+}
+
+.modalDeleteButton:hover {
+  background: var(--lfrs-modal-delete-bg-hover, #c82333);
+}

@@ -151,19 +151,37 @@ export const deleteReplyEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHand
         throw new APIError('Authentication required', 401)
       }
 
-      // Check access: own replies only, or admin
-      // We can just rely on the collection's access control (which has delete: isOwnerOrAdmin)
-      // by not overriding access.
+      let existingReply: any
+      try {
+        existingReply = await req.payload.findByID({
+          id: replyId,
+          collection: sanitized.collectionSlugs.replies,
+          overrideAccess: true,
+          req,
+        })
+      } catch (_e) {
+        throw new APIError('Reply not found', 404)
+      }
+
+      const replyUserId =
+        typeof existingReply.user === 'object' && existingReply.user !== null
+          ? existingReply.user.id
+          : existingReply.user
+
+      if (String(replyUserId) !== String(userId)) {
+        throw new APIError('Reply not owned by user', 403)
+      }
+
       let deletedReply: any
       try {
         deletedReply = await req.payload.delete({
           id: replyId,
           collection: sanitized.collectionSlugs.replies,
-          overrideAccess: false,
+          overrideAccess: true,
           req,
         })
       } catch (err: any) {
-        throw new APIError(err.message || 'Error deleting reply or forbidden', 403)
+        throw new APIError(err.message || 'Error deleting reply', 500)
       }
 
       const reviewId =

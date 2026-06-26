@@ -127,6 +127,39 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
   }, [])
   const handleWriteReview = useCallback(() => setComposeMode('create'), [])
 
+  const handleDeleteReview = useCallback(async (review: any) => {
+    try {
+      const res = await fetch(`${apiBase}/lfrs/review`, {
+        body: JSON.stringify({ reviewId: review.id }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'DELETE',
+      })
+      if (!res.ok) {
+        if (res.status === 401 && onAuthError) onAuthError()
+        return
+      }
+      void fetchStatus()
+      void fetchReviews(page)
+      window.dispatchEvent(new Event('lfrs-review-added'))
+    } catch (_) {}
+  }, [apiBase, fetchStatus, fetchReviews, page, onAuthError])
+
+  const handleDeleteReply = useCallback(async (reply: any) => {
+    try {
+      const res = await fetch(`${apiBase}/lfrs/reply`, {
+        body: JSON.stringify({ replyId: reply.id }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'DELETE',
+      })
+      if (!res.ok) {
+        if (res.status === 401 && onAuthError) onAuthError()
+        return
+      }
+      void fetchStatus()
+      void fetchReviews(page)
+    } catch (_) {}
+  }, [apiBase, fetchStatus, fetchReviews, page, onAuthError])
+
   if (statusLoading && reviewsLoading) {
     return (
       <div className={`${styles.reviewsSection} ${className}`} style={style}>
@@ -158,6 +191,8 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
           <LfrsReviewCard
             apiBase={apiBase}
             currentUserId={status.currentUserId}
+            onDelete={handleDeleteReview}
+            onDeleteReply={handleDeleteReply}
             onEdit={handleEditReview}
             onReplySuccess={handleReplySuccess}
             ratingConfig={status.ratingConfig}
@@ -193,6 +228,8 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
               currentUserId={status?.currentUserId}
               key={review.id}
               onAuthError={onAuthError}
+              onDelete={handleDeleteReview}
+              onDeleteReply={handleDeleteReply}
               onEdit={handleEditReview}
               onReplySuccess={handleReplySuccess}
               ratingConfig={status?.ratingConfig || { icon: 'star', max: 5, step: 1 }}

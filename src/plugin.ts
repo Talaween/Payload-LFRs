@@ -18,7 +18,7 @@ import { createLikesCountEndpoint } from './endpoints/likesCount.js'
 import { createLikesUsersEndpoint } from './endpoints/likesUsers.js'
 import { createRateEndpoint } from './endpoints/rate.js'
 import { createReplyEndpoint, deleteReplyEndpoint } from './endpoints/reply.js'
-import { createReviewEndpoint } from './endpoints/review.js'
+import { createReviewEndpoint, deleteReviewEndpoint } from './endpoints/review.js'
 import { createStatusEndpoint } from './endpoints/status.js'
 import { createUserFavouritesEndpoint } from './endpoints/userFavourites.js'
 import { createUserReviewsEndpoint } from './endpoints/userReviews.js'
@@ -138,6 +138,11 @@ export const payloadLFRs =
       {
         handler: createReviewEndpoint(sanitized),
         method: 'post',
+        path: '/lfrs/review',
+      },
+      {
+        handler: deleteReviewEndpoint(sanitized),
+        method: 'delete',
         path: '/lfrs/review',
       },
       {
