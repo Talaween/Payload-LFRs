@@ -61,6 +61,7 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
     onEdit,
   }) => {
     const [isReplying, setIsReplying] = useState(false)
+    const [editingReply, setEditingReply] = useState<any>(null)
 
     const authorName = review.user?.name || review.user?.email || 'Anonymous'
     const dateStr = formatRelativeTime(review.createdAt)
@@ -150,7 +151,27 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
         {review.replies && review.replies.length > 0 && (
           <div style={{ marginTop: '16px' }}>
             {review.replies.map((reply: any) => (
-              <LfrsReplyCard key={reply.id} reply={reply} />
+              editingReply?.id === reply.id ? (
+                <LfrsComposeReply
+                  apiBase={apiBase}
+                  initialData={reply}
+                  key={reply.id}
+                  onAuthError={onAuthError}
+                  onCancel={() => setEditingReply(null)}
+                  onSuccess={() => {
+                    setEditingReply(null)
+                    onReplySuccess?.()
+                  }}
+                  reviewId={review.id}
+                />
+              ) : (
+                <LfrsReplyCard 
+                  currentUserId={currentUserId}
+                  key={reply.id} 
+                  onEdit={() => setEditingReply(reply)}
+                  reply={reply} 
+                />
+              )
             ))}
           </div>
         )}

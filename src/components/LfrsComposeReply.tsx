@@ -12,6 +12,11 @@ export interface LfrsComposeReplyProps {
   apiBase?: string
   /** Optional CSS class name to apply to the root form element */
   className?: string
+  /** Pre-filled reply data used when editing an existing reply */
+  initialData?: {
+    body?: string
+    id?: string
+  }
   /** Callback triggered when the API returns a 401 Unauthorized status */
   onAuthError?: () => void
   /** Callback triggered when the cancel button is clicked. If not provided, the cancel button is omitted. */
@@ -39,6 +44,7 @@ export interface LfrsComposeReplyProps {
 export const LfrsComposeReply: React.FC<LfrsComposeReplyProps> = ({
   apiBase = '/api',
   className = '',
+  initialData,
   onAuthError,
   onCancel,
   onSuccess,
@@ -46,7 +52,7 @@ export const LfrsComposeReply: React.FC<LfrsComposeReplyProps> = ({
 }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<null | string>(null)
-  const [body, setBody] = useState('')
+  const [body, setBody] = useState(initialData?.body ?? '')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,7 +65,7 @@ export const LfrsComposeReply: React.FC<LfrsComposeReplyProps> = ({
       setLoading(true)
       setError(null)
       const res = await fetch(`${apiBase}/lfrs/reply`, {
-        body: JSON.stringify({ body, reviewId }),
+        body: JSON.stringify({ body, replyId: initialData?.id, reviewId }),
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
       })
@@ -110,7 +116,7 @@ export const LfrsComposeReply: React.FC<LfrsComposeReplyProps> = ({
           disabled={loading || !body.trim()}
           type="submit"
         >
-          {loading ? 'Submitting...' : 'Submit Reply'}
+          {loading ? 'Submitting...' : initialData?.id ? 'Update Reply' : 'Submit Reply'}
         </button>
       </div>
     </form>

@@ -9,7 +9,7 @@ export const createReplyEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHand
   return async (req: PayloadRequest) => {
     try {
       const body = req.json ? await req.json() : req.body
-      const { body: replyBody, reviewId } = body || {}
+      const { body: replyBody, reviewId, replyId } = body || {}
 
       if (!reviewId || !replyBody) {
         throw new APIError('Missing reviewId or body', 400)
@@ -77,12 +77,45 @@ export const createReplyEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHand
         dataToSave.status = 'pending'
       }
 
-      const replyDoc = await req.payload.create({
-        collection: sanitized.collectionSlugs.replies,
-        data: dataToSave,
-        overrideAccess: true, // We did the access check manually
-        req,
-      })
+      let replyDoc: any
+
+      if (replyId) {
+        let existingReply: any
+        try {
+          existingReply = await req.payload.findByID({
+            id: replyId,
+            collection: sanitized.collectionSlugs.replies,
+            overrideAccess: true,
+            req,
+          })
+        } catch (_e) {
+          throw new APIError('Reply not found', 404)
+        }
+
+        const replyUserId =
+          typeof existingReply.user === 'object' && existingReply.user !== null
+            ? existingReply.user.id
+            : existingReply.user
+
+        if (String(replyUserId) !== String(userId)) {
+          throw new APIError('Reply not owned by user', 403)
+        }
+
+        replyDoc = await req.payload.update({
+          id: replyId,
+          collection: sanitized.collectionSlugs.replies,
+          data: { body: replyBody, ...(sanitized.reviewModeration ? { status: 'pending' } : {}) },
+          overrideAccess: true,
+          req,
+        })
+      } else {
+        replyDoc = await req.payload.create({
+          collection: sanitized.collectionSlugs.replies,
+          data: dataToSave,
+          overrideAccess: true, // We did the access check manually
+          req,
+        })
+      }
 
       // Fetch the updated review to get the new repliesCount
       const updatedReview = await req.payload.findByID({

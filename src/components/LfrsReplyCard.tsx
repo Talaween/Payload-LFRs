@@ -15,6 +15,10 @@ export interface LfrsReplyCardProps {
   reply: any
   /** Optional inline styles to apply to the card container */
   style?: React.CSSProperties
+  /** The currently logged-in user's ID, to determine ownership */
+  currentUserId?: string
+  /** Callback triggered when the edit button is clicked */
+  onEdit?: (reply: any) => void
 }
 
 /**
@@ -28,7 +32,7 @@ export interface LfrsReplyCardProps {
  * - This component is **read-only** and does not support user interactions.
  */
 export const LfrsReplyCard: React.FC<LfrsReplyCardProps> = React.memo(
-  ({ className = '', reply, style }) => {
+  ({ className = '', currentUserId, onEdit, reply, style }) => {
     const authorName = reply.user?.name || reply.user?.email || 'Anonymous'
     const dateStr = formatRelativeTime(reply.createdAt)
 
@@ -39,6 +43,18 @@ export const LfrsReplyCard: React.FC<LfrsReplyCardProps> = React.memo(
           <div className={styles.reviewDate}>{dateStr}</div>
         </div>
         <p className={styles.reviewBody}>{reply.body}</p>
+        
+        {currentUserId && (reply.user === currentUserId || reply.user?.id === currentUserId) && onEdit && (
+          <div className={styles.reviewActions} style={{ marginTop: '8px' }}>
+            <button
+              className={styles.buttonText}
+              onClick={() => onEdit(reply)}
+              type="button"
+            >
+              Edit
+            </button>
+          </div>
+        )}
       </div>
     )
   },
