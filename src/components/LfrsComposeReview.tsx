@@ -123,7 +123,7 @@ export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
       
       {error && <div style={{ color: 'var(--lfrs-dislike-active)', fontSize: '14px' }}>{error}</div>}
 
-      {enableReviewRating && !initialData?.id && (
+      {enableReviewRating && (
         <div style={{ alignItems: 'center', display: 'flex', gap: '8px' }}>
           <span>Rating:</span>
           <LfrsRating
