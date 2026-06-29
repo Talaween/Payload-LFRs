@@ -5,7 +5,6 @@ import type { LfrsPluginConfig, SanitizedLfrsConfig } from './types.js'
 import { createDislikesCollection } from './collections/dislikes.js'
 import { createFavouritesCollection } from './collections/favourites.js'
 import { createLikesCollection } from './collections/likes.js'
-import { createRatingsCollection } from './collections/ratings.js'
 import { createRepliesCollection } from './collections/replies.js'
 import { createReviewsCollection } from './collections/reviews.js'
 import { sanitizePluginConfig } from './defaults.js'
@@ -16,7 +15,6 @@ import { createInteractionsEndpoint } from './endpoints/interactions.js'
 import { createLikeEndpoint } from './endpoints/like.js'
 import { createLikesCountEndpoint } from './endpoints/likesCount.js'
 import { createLikesUsersEndpoint } from './endpoints/likesUsers.js'
-import { createRateEndpoint } from './endpoints/rate.js'
 import { createReplyEndpoint, deleteReplyEndpoint } from './endpoints/reply.js'
 import { createReviewEndpoint, deleteReviewEndpoint } from './endpoints/review.js'
 import { createStatusEndpoint } from './endpoints/status.js'
@@ -44,7 +42,6 @@ export const payloadLFRs =
 
     // Validate review media config against the Payload config (build-time check)
     const resolvedMedia = resolveReviewMedia(sanitized.reviewMedia, config)
-    sanitized.reviewMedia = resolvedMedia
     sanitized.mediaEnabled = resolvedMedia !== null
 
     if (!config.collections) {
@@ -65,7 +62,6 @@ export const payloadLFRs =
     }
 
     config.collections.push(createFavouritesCollection(sanitized))
-    config.collections.push(createRatingsCollection(sanitized))
     config.collections.push(createReviewsCollection(sanitized))
 
     if (sanitized.repliesEnabled) {
@@ -136,11 +132,6 @@ export const payloadLFRs =
         handler: createFavouriteEndpoint(sanitized),
         method: 'post',
         path: '/lfrs/favourite',
-      },
-      {
-        handler: createRateEndpoint(sanitized),
-        method: 'post',
-        path: '/lfrs/rate',
       },
       {
         handler: createReviewEndpoint(sanitized),

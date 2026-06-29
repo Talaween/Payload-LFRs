@@ -87,12 +87,6 @@ export interface LfrsCollectionOptions {
    */
   allowMultipleReviews?: boolean
 
-  /**
-   * Whether reviews must include a rating score.
-   * If false, users can leave comments without rating.
-   * Default: true
-   */
-  enableReviewRating?: boolean
 }
 
 // ─── Rating Config ─────────────────────────────────────────────────────────────
@@ -302,7 +296,6 @@ export interface SanitizedCollectionOptions {
   reviews: LfrsFeatureAccess
   readReviews: LfrsFeatureAccess
   allowMultipleReviews: boolean
-  enableReviewRating: boolean
 }
 
 export interface SanitizedRatingConfig {

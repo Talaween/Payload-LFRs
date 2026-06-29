@@ -101,8 +101,12 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'lfrs-settings': LfrsSetting;
+  };
+  globalsSelect: {
+    'lfrs-settings': LfrsSettingsSelect<false> | LfrsSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -563,6 +567,53 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-settings".
+ */
+export interface LfrsSetting {
+  id: string;
+  reviewModeration?: boolean | null;
+  enableReviewMedia?: boolean | null;
+  /**
+   * Manage active LFRs features for the posts collection.
+   */
+  posts?: {
+    likes?: boolean | null;
+    dislikes?: boolean | null;
+    favourites?: boolean | null;
+    ratings?: boolean | null;
+    reviews?: boolean | null;
+    replies?: boolean | null;
+    allowMultipleReviews?: boolean | null;
+    enableReviewRating?: boolean | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-settings_select".
+ */
+export interface LfrsSettingsSelect<T extends boolean = true> {
+  reviewModeration?: T;
+  enableReviewMedia?: T;
+  posts?:
+    | T
+    | {
+        likes?: T;
+        dislikes?: T;
+        favourites?: T;
+        ratings?: T;
+        reviews?: T;
+        replies?: T;
+        allowMultipleReviews?: T;
+        enableReviewRating?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

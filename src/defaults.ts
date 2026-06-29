@@ -91,7 +91,6 @@ export function sanitizeCollectionOptions(
   return {
     allowMultipleReviews: input.allowMultipleReviews ?? false,
     dislikes: input.dislikes ?? false,
-    enableReviewRating: input.enableReviewRating ?? true,
     favourites: input.favourites ?? true,
     likes: input.likes ?? true,
     ratings: input.ratings ?? true,

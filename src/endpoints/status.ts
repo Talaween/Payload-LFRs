@@ -62,7 +62,6 @@ export const createStatusEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
         allowMultipleReviews: mergedCollectionSettings.allowMultipleReviews,
         dislikesCount,
         dislikesEnabled,
-        enableReviewRating: mergedCollectionSettings.enableReviewRating,
         favouritesEnabled,
         likesCount,
         likesEnabled,
@@ -139,27 +138,10 @@ export const createStatusEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
         response.favourited = false
       }
 
-      // Check rating
-      if (enabledFeatures.has('ratings')) {
-        const ratings = await req.payload.find({
-          collection: sanitized.collectionSlugs.ratings,
-          overrideAccess: true,
-          req,
-          where: {
-            and: [
-              { user: { equals: userId } },
-              { targetCollection: { equals: collection } },
-              { targetDoc: { equals: id } },
-            ],
-          },
-        })
-        response.rating = ratings.docs.length > 0 ? ratings.docs[0].score : null
-      } else {
-        response.rating = null
-      }
 
-      // Check review
-      if (enabledFeatures.has('reviews')) {
+
+      // Check review / rating
+      if (enabledFeatures.has('reviews') || enabledFeatures.has('ratings')) {
         const reviews = await req.payload.find({
           collection: sanitized.collectionSlugs.reviews,
           overrideAccess: true,
@@ -206,11 +188,14 @@ export const createStatusEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
           }
 
           response.review = review
+          response.rating = review.score !== undefined ? review.score : null
         } else {
           response.review = null
+          response.rating = null
         }
       } else {
         response.review = null
+        response.rating = null
       }
 
       return Response.json(response)

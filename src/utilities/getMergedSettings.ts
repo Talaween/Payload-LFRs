@@ -27,6 +27,5 @@ export async function getMergedCollectionSettings(
   return {
     allowMultipleReviews:
       collectionAdminSettings?.allowMultipleReviews ?? options.allowMultipleReviews,
-    enableReviewRating: collectionAdminSettings?.enableReviewRating ?? options.enableReviewRating,
   }
 }

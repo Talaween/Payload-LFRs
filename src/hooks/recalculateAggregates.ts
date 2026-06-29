@@ -52,13 +52,11 @@ async function recalculate(args: {
     likesResult,
     dislikesResult,
     favouritesResult,
-    ratingsResult,
     reviewsResult,
   ] = await Promise.all([
     req.payload.find({ collection: config.collectionSlugs.likes, overrideAccess: true, req, where: baseWhere, limit: 1, depth: 0 }),
     config.dislikesEnabled ? req.payload.find({ collection: config.collectionSlugs.dislikes, overrideAccess: true, req, where: baseWhere, limit: 1, depth: 0 }) : Promise.resolve(null),
     req.payload.find({ collection: config.collectionSlugs.favourites, overrideAccess: true, req, where: baseWhere, limit: 1, depth: 0 }),
-    req.payload.find({ collection: config.collectionSlugs.ratings, overrideAccess: true, depth: 0, limit: 0, req, where: baseWhere }),
     req.payload.find({ collection: config.collectionSlugs.reviews, overrideAccess: true, depth: 0, limit: 0, req, where: reviewsWhere }),
   ])
 
@@ -69,16 +67,8 @@ async function recalculate(args: {
   lfrs.favouritesCount = favouritesResult.totalDocs
 
   
-  // Collect scores from both
   let totalScore = 0
   let scoreCount = 0
-  
-  for (const doc of ratingsResult.docs) {
-    if (typeof doc.score === 'number') {
-      totalScore += doc.score
-      scoreCount++
-    }
-  }
   
   for (const doc of reviewsResult.docs) {
     if (typeof doc.score === 'number') {

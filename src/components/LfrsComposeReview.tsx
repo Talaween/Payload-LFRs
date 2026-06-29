@@ -20,8 +20,10 @@ export interface LfrsComposeReviewProps {
     score?: number
     title?: string
   }
-  /** Whether rating selection (e.g. stars) is enabled (defaults to true) */
-  enableReviewRating?: boolean
+  /** Whether ratings are enabled */
+  ratingsEnabled?: boolean
+  /** Whether reviews are enabled */
+  reviewsEnabled?: boolean
   /** Whether media file uploads are enabled (defaults to false) */
   mediaEnabled?: boolean
   /** Callback triggered when the API returns a 401 Unauthorized status */
@@ -55,7 +57,8 @@ export interface LfrsComposeReviewProps {
 export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
   apiBase = '/api',
   className = '',
-  enableReviewRating = true,
+  ratingsEnabled = true,
+  reviewsEnabled = true,
   initialData,
   mediaEnabled = false,
   onAuthError,
@@ -74,11 +77,11 @@ export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (enableReviewRating && score === 0) {
+    if (ratingsEnabled && score === 0) {
       setError('Please select a rating')
       return
     }
-    if (!body.trim()) {
+    if (reviewsEnabled && !body.trim()) {
       setError('Please write a review')
       return
     }
@@ -92,8 +95,8 @@ export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
           body,
           collection: targetCollection,
           reviewId: initialData?.id,
-          score: enableReviewRating ? score : undefined,
-          title,
+          score: ratingsEnabled ? score : undefined,
+          title: reviewsEnabled ? title : undefined,
           // media arrays would go here if we implemented the upload flow
         }),
         headers: { 'Content-Type': 'application/json' },
@@ -119,11 +122,15 @@ export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
 
   return (
     <form className={`${styles.composeForm} ${className}`} onSubmit={handleSubmit}>
-      <h3 style={{ margin: 0 }}>{initialData?.id ? 'Edit your review' : 'Write a review'}</h3>
+      <h3 style={{ margin: 0 }}>
+        {initialData?.id
+          ? reviewsEnabled ? 'Edit your review' : 'Edit your rating'
+          : reviewsEnabled ? 'Write a review' : 'Rate this item'}
+      </h3>
       
       {error && <div style={{ color: 'var(--lfrs-dislike-active)', fontSize: '14px' }}>{error}</div>}
 
-      {enableReviewRating && (
+      {ratingsEnabled && (
         <div style={{ alignItems: 'center', display: 'flex', gap: '8px' }}>
           <span>Rating:</span>
           <LfrsRating
@@ -136,23 +143,27 @@ export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
         </div>
       )}
 
-      <input
-        aria-label="Review title"
-        className={styles.composeInput}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Review title (optional)"
-        type="text"
-        value={title}
-      />
+      {reviewsEnabled && (
+        <>
+          <input
+            aria-label="Review title"
+            className={styles.composeInput}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Review title (optional)"
+            type="text"
+            value={title}
+          />
 
-      <textarea
-        aria-label="Review body"
-        className={styles.composeTextarea}
-        onChange={(e) => setBody(e.target.value)}
-        placeholder="What did you think?"
-        required
-        value={body}
-      />
+          <textarea
+            aria-label="Review body"
+            className={styles.composeTextarea}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="What did you think?"
+            required
+            value={body}
+          />
+        </>
+      )}
 
       {mediaEnabled && (
         <div style={{ color: 'var(--lfrs-text-muted)', fontSize: '12px' }}>
@@ -173,10 +184,9 @@ export const LfrsComposeReview: React.FC<LfrsComposeReviewProps> = ({
         )}
         <button
           className={`${styles.button} ${styles.buttonPrimary}`}
-          disabled={loading || (enableReviewRating && score === 0) || !body.trim()}
-          type="submit"
+          disabled={loading || (ratingsEnabled && score === 0) || (reviewsEnabled && !body.trim())}
         >
-          {loading ? 'Submitting...' : 'Submit Review'}
+          {loading ? 'Submitting...' : reviewsEnabled ? 'Submit Review' : 'Submit Rating'}
         </button>
       </div>
     </form>

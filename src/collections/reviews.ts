@@ -83,7 +83,6 @@ export function createReviewsCollection(config: SanitizedLfrsConfig): Collection
     {
       name: 'body',
       type: 'textarea',
-      required: true,
     },
     {
       name: 'score',
@@ -144,11 +143,24 @@ export function createReviewsCollection(config: SanitizedLfrsConfig): Collection
       return !!config.collections[data.targetCollection]?.allowMultipleReviews
     }),
     createValidateTarget(config),
-    ({ data }) => {
-      const isRatingEnabled = config.collections[data.targetCollection]?.enableReviewRating ?? true
+    ({ data, req }) => {
+      const isRatingEnabled = config.collections[data.targetCollection]?.ratings !== false
+      const isReviewEnabled = config.collections[data.targetCollection]?.reviews !== false
+
       if (isRatingEnabled && (data.score === undefined || data.score === null)) {
-        throw new Error('A rating score is required for this review.')
+        throw new Error('A rating score is required.')
       }
+
+      // If reviews are enabled and the user provided a body, it's fine.
+      // If reviews are disabled, we might want to clear the body/title just in case.
+      if (!isReviewEnabled) {
+        data.body = null
+        data.title = null
+      } else if (!isRatingEnabled && !data.body) {
+        // If ratings are disabled, a review must have a body
+        throw new Error('Review body is required.')
+      }
+
       return data
     },
     createValidateScore(config.rating),

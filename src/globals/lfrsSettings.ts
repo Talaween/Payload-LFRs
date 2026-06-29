@@ -59,14 +59,7 @@ export function createLfrsSettingsGlobal(sanitized: SanitizedLfrsConfig): Global
       })
     }
 
-    if (options.enableReviewRating) {
-      collectionFields.push({
-        name: 'enableReviewRating',
-        type: 'checkbox',
-        label: 'Require Rating in Reviews',
-        defaultValue: true,
-      })
-    }
+
 
     if (collectionFields.length > 0) {
       fields.push({

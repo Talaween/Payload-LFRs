@@ -37,20 +37,7 @@ export const createDistributionEndpoint = (sanitized: SanitizedLfrsConfig): Payl
 
       // We use limit: 100000 which is effectively all for most realistic scenarios.
       // A more optimized approach would use DB aggregation, but this works cross-database.
-      if (enabledFeatures.has('ratings')) {
-        const ratings = await req.payload.find({
-          collection: sanitized.collectionSlugs.ratings,
-          limit: 100000,
-          overrideAccess: true,
-          req,
-          where: {
-            and: [{ targetCollection: { equals: collection } }, { targetDoc: { equals: id } }],
-          },
-        })
-        processScores(ratings.docs)
-      }
-
-      if (enabledFeatures.has('reviews')) {
+      if (enabledFeatures.has('ratings') || enabledFeatures.has('reviews')) {
         const where: any = {
           and: [{ targetCollection: { equals: collection } }, { targetDoc: { equals: id } }],
         }

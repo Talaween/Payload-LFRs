@@ -184,28 +184,28 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
 
   const hasMyReview = !!status?.review
 
-  if (status && status.reviewsEnabled === false) {
+  if (status && status.reviewsEnabled === false && status.ratingsEnabled === false) {
     return null
   }
 
   return (
     <div className={`${styles.reviewsSection} ${className}`} style={style}>
       <div style={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between' }}>
-        <h2>Reviews</h2>
+        <h2>{status?.reviewsEnabled ? 'Reviews' : 'Ratings'}</h2>
         {(!hasMyReview || status?.allowMultipleReviews) && !showCompose && status && (
           <button
             className={`${styles.button} ${styles.buttonPrimary}`}
             onClick={handleWriteReview}
             type="button"
           >
-            Write a Review
+            {status?.reviewsEnabled ? 'Write a Review' : 'Rate this item'}
           </button>
         )}
       </div>
 
       {hasMyReview && !showCompose && (
         <div style={{ marginBottom: '24px' }}>
-          <h3>Your Review</h3>
+          <h3>{status?.reviewsEnabled ? 'Your Review' : 'Your Rating'}</h3>
           <LfrsReviewCard
             apiBase={apiBase}
             currentUserId={status.currentUserId}
@@ -225,13 +225,14 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
         <div style={{ marginBottom: '24px' }}>
           <LfrsComposeReview
             apiBase={apiBase}
-            enableReviewRating={status.enableReviewRating}
             initialData={composeMode === 'edit' ? editingReview : undefined}
             mediaEnabled={status.mediaEnabled}
             onAuthError={onAuthError}
             onCancel={handleCancelCompose}
             onSuccess={handleReviewSuccess}
             ratingConfig={status.ratingConfig}
+            ratingsEnabled={status.ratingsEnabled}
+            reviewsEnabled={status.reviewsEnabled}
             targetCollection={targetCollection}
             targetDoc={targetDoc}
           />
@@ -259,7 +260,9 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
           ))}
 
         {reviews.length === 0 && !hasMyReview && (
-          <div style={{ color: 'var(--lfrs-text-muted)' }}>No reviews yet.</div>
+          <div style={{ color: 'var(--lfrs-text-muted)' }}>
+            {status?.reviewsEnabled ? 'No reviews yet.' : 'No ratings yet.'}
+          </div>
         )}
       </div>
 

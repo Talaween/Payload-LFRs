@@ -131,30 +131,9 @@ export const createInteractionsEndpoint = (sanitized: SanitizedLfrsConfig): Payl
           totalDocs: reviews.totalDocs,
           totalPages: reviews.totalPages,
         })
-      } else if (type === 'ratings') {
-        if (!enabledFeatures.has('ratings')) {
-          throw new APIError('Ratings are not enabled for this collection', 404)
-        }
-
-        const ratings = await req.payload.find({
-          collection: sanitized.collectionSlugs.ratings,
-          limit,
-          overrideAccess: true,
-          page,
-          req,
-          sort,
-          where,
-        })
-
-        return Response.json({
-          docs: ratings.docs,
-          page: ratings.page,
-          totalDocs: ratings.totalDocs,
-          totalPages: ratings.totalPages,
-        })
       }
 
-      throw new APIError('Invalid type parameter. Must be "reviews" or "ratings"', 400)
+      throw new APIError('Invalid type parameter. Must be "reviews"', 400)
     } catch (err: any) {
       const status = err.status || 500
       return Response.json({ error: err.message || 'Internal Server Error' }, { status })

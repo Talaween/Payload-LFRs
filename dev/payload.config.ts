@@ -74,7 +74,7 @@ const buildConfigWithMemoryDB = async () => {
           posts: {
             allowMultipleReviews: true, // Can leave multiple reviews
             dislikes: true, // test mutual exclusivity
-            enableReviewRating: true, // Allow ratings inside reviews
+
             favourites: true,
             likes: true,
             ratings: true,

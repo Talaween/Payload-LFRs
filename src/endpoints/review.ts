@@ -31,14 +31,27 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
         req,
       )
 
-      const enableReviewRating = mergedCollectionSettings.enableReviewRating
-      if (enableReviewRating && typeof score !== 'number') {
-        throw new APIError('Missing valid score', 400)
+      const enabledFeatures = await getEnabledFeatures(collectionOptions, collection, req)
+
+      const isReviewsEnabled = enabledFeatures.has('reviews')
+      const isRatingsEnabled = enabledFeatures.has('ratings')
+
+      if (!isReviewsEnabled && !isRatingsEnabled) {
+        throw new APIError('Reviews and ratings are not enabled for this collection', 404)
       }
 
-      const enabledFeatures = await getEnabledFeatures(collectionOptions, collection, req)
-      if (!enabledFeatures.has('reviews')) {
-        throw new APIError('Reviews are not enabled for this collection', 404)
+      if (isRatingsEnabled && typeof score !== 'number') {
+        throw new APIError('Missing valid score', 400)
+      }
+      
+      // If reviews are disabled but ratings are enabled, allow the submission but strip body
+      let finalBody = reviewBody
+      let finalTitle = title
+      if (!isReviewsEnabled) {
+        finalBody = null
+        finalTitle = null
+      } else if (!isRatingsEnabled && !finalBody) {
+        throw new APIError('Missing review body', 400)
       }
 
       let targetDoc: any
@@ -54,7 +67,7 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
       }
 
       const accessResult = await resolveFeatureAccess({
-        access: collectionOptions.reviews,
+        access: isReviewsEnabled ? collectionOptions.reviews : collectionOptions.ratings,
         req,
         targetCollection: collection,
         targetDoc,
@@ -85,9 +98,9 @@ export const createReviewEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
       })
 
       const dataToSave: any = {
-        body: reviewBody,
+        body: finalBody,
         score,
-        title,
+        title: finalTitle,
         ...(mergedGlobalSettings.reviewModeration
           ? { status: 'pending' }
           : sanitized.reviewModeration
