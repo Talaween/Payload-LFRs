@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { LfrsComposeReply } from './LfrsComposeReply.js'
+import { LfrsLikeDislike } from './LfrsLikeDislike.js'
 import { LfrsRating } from './LfrsRating.js'
 import { LfrsReplyCard } from './LfrsReplyCard.js'
 import styles from './styles/lfrs.module.css'
@@ -37,6 +38,12 @@ export interface LfrsReviewCardProps {
   onDelete?: (review: any) => void
   /** Callback triggered when a reply delete button is clicked */
   onDeleteReply?: (reply: any) => void
+  /** Whether users can like/dislike reviews and replies */
+  enableReviewReactions?: boolean
+  /** The slug of the reviews collection */
+  reviewsCollectionSlug?: string
+  /** The slug of the replies collection */
+  repliesCollectionSlug?: string
 }
 
 /**
@@ -67,6 +74,9 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
     onEdit,
     onDelete,
     onDeleteReply,
+    enableReviewReactions,
+    reviewsCollectionSlug,
+    repliesCollectionSlug,
   }) => {
     const [isReplying, setIsReplying] = useState(false)
     const [editingReply, setEditingReply] = useState<any>(null)
@@ -131,8 +141,18 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
           </div>
         )}
 
-        {(repliesEnabled || isOwner) && (
+        {(repliesEnabled || isOwner || enableReviewReactions) && (
           <div className={styles.reviewActions}>
+            {enableReviewReactions && reviewsCollectionSlug && (
+              <div style={{ display: 'inline-flex', marginRight: '16px' }}>
+                <LfrsLikeDislike
+                  apiBase={apiBase}
+                  onAuthError={onAuthError}
+                  targetCollection={reviewsCollectionSlug}
+                  targetDoc={review.id}
+                />
+              </div>
+            )}
             {repliesEnabled && (
               <button
                 className={styles.buttonText}
@@ -196,6 +216,10 @@ export const LfrsReviewCard: React.FC<LfrsReviewCardProps> = React.memo(
                   onEdit={() => setEditingReply(reply)}
                   reply={reply}
                   reviewModeration={reviewModeration}
+                  enableReviewReactions={enableReviewReactions}
+                  repliesCollectionSlug={repliesCollectionSlug}
+                  apiBase={apiBase}
+                  onAuthError={onAuthError}
                 />
               ),
             )}

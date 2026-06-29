@@ -60,13 +60,7 @@ export function createCascadeDelete(
       where: baseWhere,
     })
 
-    // Delete ratings
-    await req.payload.delete({
-      collection: config.collectionSlugs.ratings,
-      context: deleteContext,
-      req,
-      where: baseWhere,
-    })
+
 
     // Find reviews to delete (we need their IDs to cascade-delete replies)
     const reviews = await req.payload.find({

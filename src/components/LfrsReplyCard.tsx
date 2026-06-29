@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react'
 
+import { LfrsLikeDislike } from './LfrsLikeDislike.js'
+
 import styles from './styles/lfrs.module.css'
 import { formatRelativeTime } from '../utilities/formatRelativeTime.js'
 
@@ -23,6 +25,14 @@ export interface LfrsReplyCardProps {
   onEdit?: (reply: any) => void
   /** Callback triggered when the delete button is clicked */
   onDelete?: (reply: any) => void
+  /** Whether users can like/dislike reviews and replies */
+  enableReviewReactions?: boolean
+  /** The slug of the replies collection */
+  repliesCollectionSlug?: string
+  /** The base path of the REST API */
+  apiBase?: string
+  /** Callback triggered when the API returns a 401 Unauthorized status */
+  onAuthError?: () => void
 }
 
 /**
@@ -36,7 +46,7 @@ export interface LfrsReplyCardProps {
  * - This component is **read-only** and does not support user interactions.
  */
 export const LfrsReplyCard: React.FC<LfrsReplyCardProps> = React.memo(
-  ({ className = '', currentUserId, onDelete, onEdit, reply, style, reviewModeration = true }) => {
+  ({ className = '', currentUserId, onDelete, onEdit, reply, style, reviewModeration = true, enableReviewReactions, repliesCollectionSlug, apiBase, onAuthError }) => {
     const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
     const authorName = reply.user?.name || reply.user?.email || 'Anonymous'
     const dateStr = formatRelativeTime(reply.createdAt)
@@ -58,9 +68,19 @@ export const LfrsReplyCard: React.FC<LfrsReplyCardProps> = React.memo(
         </div>
         <p className={styles.reviewBody}>{reply.body}</p>
         
-        {isOwner && (
+        {(isOwner || enableReviewReactions) && (
           <div className={styles.reviewActions} style={{ marginTop: '8px' }}>
-            {canEdit && onEdit && (
+            {enableReviewReactions && repliesCollectionSlug && (
+              <div style={{ display: 'inline-flex', marginRight: '16px' }}>
+                <LfrsLikeDislike
+                  apiBase={apiBase}
+                  onAuthError={onAuthError}
+                  targetCollection={repliesCollectionSlug}
+                  targetDoc={reply.id}
+                />
+              </div>
+            )}
+            {isOwner && canEdit && onEdit && (
               <button
                 className={styles.buttonText}
                 onClick={() => onEdit(reply)}
@@ -69,7 +89,7 @@ export const LfrsReplyCard: React.FC<LfrsReplyCardProps> = React.memo(
                 Edit
               </button>
             )}
-            {onDelete && (
+            {isOwner && onDelete && (
               <button
                 className={styles.buttonText}
                 onClick={() => setIsConfirmingDelete(true)}

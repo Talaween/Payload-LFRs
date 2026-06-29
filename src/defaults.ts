@@ -133,6 +133,23 @@ export function sanitizePluginConfig(input: LfrsPluginConfig): SanitizedLfrsConf
     }
   }
 
+  const enableReviewReactions = input.enableReviewReactions ?? false
+
+  if (enableReviewReactions) {
+    const reactionOptions: SanitizedCollectionOptions = {
+      allowMultipleReviews: false,
+      dislikes: true,
+      favourites: false,
+      likes: true,
+      ratings: false,
+      readReviews: 'public',
+      replies: false,
+      reviews: false,
+    }
+    collections[collectionSlugs.reviews] = reactionOptions
+    collections[collectionSlugs.replies] = reactionOptions
+  }
+
   // Check if any collection has dislikes or replies enabled
   const dislikesEnabled = Object.values(collections).some((c) => isFeatureEnabled(c.dislikes))
   const repliesEnabled = Object.values(collections).some((c) => isFeatureEnabled(c.replies))
@@ -144,6 +161,7 @@ export function sanitizePluginConfig(input: LfrsPluginConfig): SanitizedLfrsConf
     collectionSlugs,
     disabled: input.disabled ?? false,
     dislikesEnabled,
+    enableReviewReactions,
     mediaEnabled: reviewMedia !== null,
     rating,
     repliesEnabled,

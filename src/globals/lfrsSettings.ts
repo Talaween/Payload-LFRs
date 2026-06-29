@@ -29,7 +29,20 @@ export function createLfrsSettingsGlobal(sanitized: SanitizedLfrsConfig): Global
     })
   }
 
+  if (sanitized.enableReviewReactions) {
+    fields.push({
+      name: 'enableReviewReactions',
+      type: 'checkbox',
+      label: 'Enable Like/Dislike on Reviews and Replies',
+      defaultValue: true,
+    })
+  }
+
   for (const [slug, options] of Object.entries(sanitized.collections)) {
+    if (slug === sanitized.collectionSlugs.reviews || slug === sanitized.collectionSlugs.replies) {
+      continue
+    }
+
     const collectionFields: CheckboxField[] = []
 
     const checkAndAdd = (key: LfrsFeatureKey, label: string) => {

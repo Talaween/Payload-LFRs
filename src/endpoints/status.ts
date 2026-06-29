@@ -72,6 +72,9 @@ export const createStatusEndpoint = (sanitized: SanitizedLfrsConfig): PayloadHan
         reviewModeration: mergedGlobalSettings.reviewModeration,
         reviewsEnabled,
         currentUserId: userId,
+        enableReviewReactions: mergedGlobalSettings.enableReviewReactions,
+        reviewsCollectionSlug: sanitized.collectionSlugs.reviews,
+        repliesCollectionSlug: sanitized.collectionSlugs.replies,
       }
 
       if (!userId) {

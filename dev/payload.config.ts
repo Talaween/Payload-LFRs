@@ -82,6 +82,7 @@ const buildConfigWithMemoryDB = async () => {
             reviews: true,
           },
         },
+        enableReviewReactions: true,
         reviewMedia: {
           maxFiles: 3,
           uploadCollection: 'media',

@@ -257,6 +257,11 @@ export interface LfrsPluginConfig {
   usersCollectionSlug?: string
 
   /**
+   * Whether users can like/dislike reviews and replies
+   */
+  enableReviewReactions?: boolean
+
+  /**
    * Optional callbacks to hook into user interactions and state changes
    */
   callbacks?: LfrsCallbacks
@@ -283,6 +288,7 @@ export interface SanitizedLfrsConfig {
   repliesEnabled: boolean
   reviewMedia: null | SanitizedReviewMediaConfig
   reviewModeration: boolean
+  enableReviewReactions: boolean
   usersCollectionSlug: string
   callbacks?: LfrsCallbacks
 }

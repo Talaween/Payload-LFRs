@@ -3,7 +3,6 @@ import type { CollectionBeforeChangeHook, CollectionConfig, Field } from 'payloa
 import type { SanitizedLfrsConfig, SanitizedReviewMediaConfig } from '../types.js'
 
 import { isAuthenticated } from '../access/isAuthenticated.js'
-import { isOwner } from '../access/isOwner.js'
 import { isOwnerOrAdmin } from '../access/isOwnerOrAdmin.js'
 import { createEnforceUniqueness } from '../hooks/enforceUniqueness.js'
 import { enforceUser } from '../hooks/enforceUser.js'
@@ -171,6 +170,8 @@ export function createReviewsCollection(config: SanitizedLfrsConfig): Collection
   if (mediaHook) {
     beforeChangeHooks.push(mediaHook)
   }
+
+
 
   return {
     slug: config.collectionSlugs.reviews,

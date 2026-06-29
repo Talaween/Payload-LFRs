@@ -217,6 +217,9 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
             repliesEnabled={status.repliesEnabled}
             review={status.review}
             reviewModeration={status.reviewModeration}
+            enableReviewReactions={status.enableReviewReactions}
+            reviewsCollectionSlug={status.reviewsCollectionSlug}
+            repliesCollectionSlug={status.repliesCollectionSlug}
           />
         </div>
       )}
@@ -256,6 +259,9 @@ export const LfrsReviewsSection: React.FC<LfrsReviewsSectionProps> = ({
               repliesEnabled={status?.repliesEnabled}
               review={review}
               reviewModeration={status?.reviewModeration}
+              enableReviewReactions={status?.enableReviewReactions}
+              reviewsCollectionSlug={status?.reviewsCollectionSlug}
+              repliesCollectionSlug={status?.repliesCollectionSlug}
             />
           ))}
 

@@ -13,6 +13,7 @@ export async function getMergedGlobalSettings(
   return {
     mediaEnabled: adminSettings?.enableReviewMedia ?? sanitized.mediaEnabled,
     reviewModeration: adminSettings?.reviewModeration ?? sanitized.reviewModeration,
+    enableReviewReactions: adminSettings?.enableReviewReactions ?? sanitized.enableReviewReactions,
   }
 }
 
