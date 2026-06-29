@@ -71,14 +71,15 @@ export default buildConfig({
           likes: true,                 // Enable likes for authenticated users
           dislikes: true,              // Enable dislikes (mutually exclusive with likes)
           favourites: true,            // Enable favourites
-          ratings: true,               // Enable ratings
+          ratings: true,               // Enable ratings (stored directly in reviews)
           reviews: true,               // Enable reviews
           replies: ['admin'],          // Enable replies, but restrict to admin roles
           readReviews: 'public',       // Access control for reading reviews ('public', true, or roles array)
           allowMultipleReviews: false, // Prevent users from submitting multiple reviews on the same doc
-          enableReviewRating: true,    // Force users to choose a rating score when reviewing
         },
       },
+      // Allow users to like/dislike reviews and replies
+      enableReviewReactions: true,
       // Configure global rating options
       rating: {
         max: 5,        // Max rating scale value (default: 5)
@@ -119,7 +120,6 @@ collections: {
     reviews: true,
     readReviews: 'public', // Set who can read reviews
     allowMultipleReviews: true, // Allow users to leave multiple reviews (default: false)
-    enableReviewRating: false, // Make review ratings optional for comment-style reviews (default: true)
     replies: ['admin'], // Enable replies, but only admins can respond
   }
 }
@@ -136,10 +136,10 @@ _(Default: `'public'`)_
 If `true`, users can submit more than one review on the same document. If `false`, they are restricted to a single review, and the UI component will present an "Edit Review" button instead of "Write a Review".
 _(Default: `false`)_
 
-### `enableReviewRating`
+### `enableReviewReactions`
 
-If `false`, users can submit a review without being forced to provide a star rating. This effectively turns the review system into a standard comment system.
-_(Default: `true`)_
+Whether users are allowed to like or dislike reviews and replies. If set to `true`, the plugin will add aggregate thumbs-up and thumbs-down reaction fields to both review and reply documents, and render action buttons for them in the UI.
+_(Default: `false`)_
 
 #### Access Control
 
@@ -209,11 +209,13 @@ When `disabled: true`, the plugin will continue to register its collections and 
 
 ### `collectionSlugs`
 
-Override the default slugs for the internal collections created by the plugin (`likes`, `dislikes`, `favourites`, `ratings`, `reviews`, `replies`).
+Override the default slugs for the internal collections created by the plugin (`likes`, `dislikes`, `favourites`, `reviews`, `replies`).
 
 ### Admin UI Runtime Controls (`LfrsSettings`)
 
 The plugin automatically generates a **Payload Global** named `LFRs Settings` in the admin panel. This allows administrators to temporarily enable/disable features on the fly without changing code or restarting the server.
+
+There is also a checkbox option for **Enable Like/Dislike on Reviews and Replies** which allows admins to toggle review reactions dynamically.
 
 **Important:** The admin controls are strictly generated based on the developer's static config (`payload.config.ts`).
 
@@ -253,11 +255,9 @@ plugins: [
 - **`onReviewDeleted`**: `{ req, reviewId, targetCollection, targetDoc }` — Triggered when a user deletes their review.
 - **`onReplySubmitted`**: `{ req, reply }` — Triggered when a user creates or updates a reply.
 - **`onReviewStateChanged`**: `{ req, review, previousStatus }` — Triggered when an admin changes a review's `status` via the Admin panel.
-- **`onRatingSubmitted`**: `{ req, rating }` — Triggered when a user submits a net-new standalone rating.
-- **`onRatingUpdated`**: `{ req, rating }` — Triggered when a user updates their existing rating.
-- **`onLiked`**: `{ req, like }` — Triggered when a user likes a document.
+- **`onLiked`**: `{ req, like }` — Triggered when a user likes a document or review/reply.
 - **`onUnliked`**: `{ req, targetCollection, targetDoc }` — Triggered when a user removes their like.
-- **`onDisliked`**: `{ req, dislike }` — Triggered when a user dislikes a document.
+- **`onDisliked`**: `{ req, dislike }` — Triggered when a user dislikes a document or review/reply.
 - **`onUndisliked`**: `{ req, targetCollection, targetDoc }` — Triggered when a user removes their dislike.
 
 ## How It Works
@@ -288,11 +288,8 @@ The plugin exposes several endpoints for interacting with the LFRs features from
 - `POST /api/lfrs/favourite` — Toggles a user's favorite on a document.
   - **Body:** `{ collection: string, id: string }`
   - **Returns:** `{ favourited: boolean, favouritesCount: number }`
-- `POST /api/lfrs/rate` — Submits or updates a user rating score.
-  - **Body:** `{ collection: string, id: string, score: number }`
-  - **Returns:** `{ rating: object, ratingConfig: object, ratingsAverage: number, ratingsCount: number }`
-- `POST /api/lfrs/review` — Submits or updates a user review.
-  - **Body:** `{ collection: string, id: string, body: string, title?: string, score?: number, media?: string[], reviewId?: string }`
+- `POST /api/lfrs/review` — Submits or updates a user review and/or rating. (If ratings are enabled, a score is submitted. If reviews are enabled, text body and title are submitted. If reviews are disabled but ratings are enabled, title and body are not saved.)
+  - **Body:** `{ collection: string, id: string, body?: string, title?: string, score?: number, media?: string[], reviewId?: string }`
   - **Returns:** `{ review: object, reviewsCount: number }`
 - `DELETE /api/lfrs/review` — Deletes a user's review.
   - **Body:** `{ reviewId: string }`

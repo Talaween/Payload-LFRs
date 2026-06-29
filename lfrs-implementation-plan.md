@@ -13,8 +13,7 @@ The **payload-lfrs** plugin lets any Payload CMS collection receive social inter
 | **Like**      | Toggle like/unlike on a document (one per user per doc)                                                |
 | **Dislike**   | Toggle dislike/un-dislike on a document (optional, one per user per doc, mutually exclusive with like) |
 | **Favourite** | Toggle favourite/unfavourite on a document (one per user per doc)                                      |
-| **Rate**      | Submit a numeric rating (1–5 stars, one per user per doc, can update)                                  |
-| **Review**    | Submit a text review with optional media and a rating (one per user per doc, can update)               |
+| **Review**    | Submit a rating and/or text review with optional media (stored in reviews, one per user per doc, can update) |
 | **Reply**     | Reply to a review (one level deep, by any user or admin)                                               |
 
 Each feature is **opt-in** per collection via the plugin config, so consumers can enable only what they need.
@@ -111,9 +110,14 @@ export interface LfrsPluginConfig {
   collectionSlugs?: {
     likes?: string
     favourites?: string
-    ratings?: string
     reviews?: string
   }
+
+  /**
+   * Allow users to like/dislike reviews and replies.
+   * Default: false
+   */
+  enableReviewReactions?: boolean
 
   /**
    * Whether to generate admin controls and UI components.
@@ -271,12 +275,6 @@ export interface LfrsCollectionOptions {
    */
   allowMultipleReviews?: boolean
   /**
-   * Whether reviews must include a rating score.
-   * If false, users can leave comments without rating.
-   * Default: true
-   */
-  enableReviewRating?: boolean
-  /**
    * Enable/control replies on reviews.
    * Default: true (any authenticated user can reply).
    * Replies are one level deep — no nested threads.
@@ -432,7 +430,8 @@ To allow administrators to toggle features dynamically without modifying the cod
 1. The global schema is generated dynamically based on the static `LfrsPluginConfig`.
 2. Admin toggles are only injected into the global if the developer initially enabled the feature in code. This ensures the admin cannot turn on a feature (like `reviews`) if the UI/schema isn't built for it.
 3. Endpoints securely merge the static developer config with the cached Admin global config. If an admin disables a feature, the API instantly blocks mutations (`404`/`403`) and the React UI components automatically hide the corresponding forms/buttons.
-4. If moderation is disabled by the admin at runtime, the API automatically bypasses the database schema's default `pending` status by explicitly saving reviews and replies as `approved`.
+4. If moderation is disabled by the admin at runtime, the API automatically bypasses the database schema's default `pending` status by explicitly saving reviews and replies as `approved`, and allows users to edit approved reviews/replies indefinitely.
+5. An option for "Enable Like/Dislike on Reviews and Replies" is added to the admin global settings, letting admins toggle this feature on the fly.
 
 ---
 
@@ -474,26 +473,9 @@ Only created if **any** collection enables `dislikes`.
 
 Same uniqueness pattern as likes.
 
-### 4.4 `lfrs-ratings`
+### 4.4 `lfrs-ratings` (DELETED)
 
-| Field              | Type                   | Description                                                                                  |
-| ------------------ | ---------------------- | -------------------------------------------------------------------------------------------- |
-| `user`             | `relationship` → users | The user who rated                                                                           |
-| `targetCollection` | `text`                 | Slug of the target collection                                                                |
-| `targetDoc`        | `text`                 | ID of the rated document                                                                     |
-| `score`            | `number`               | Rating value. Validated: must be a multiple of `rating.step`, within [`step`, `rating.max`]. |
-
-**Compound uniqueness**: One rating per user per target doc.
-
-**Score validation example** (with default config `max: 5, step: 1`):
-
-- ✅ `1`, `2`, `3`, `4`, `5`
-- ❌ `0`, `0.5`, `2.5`, `6`, `-1`
-
-**Score validation example** (with `max: 10, step: 0.5`):
-
-- ✅ `0.5`, `1`, `1.5`, `2`, ... `9.5`, `10`
-- ❌ `0`, `0.3`, `10.5`, `-1`
+*This collection was removed in the final implementation. Ratings are unified directly into the `lfrs-reviews` collection via the `score` field, keeping reviews and ratings synchronized.*
 
 ### 4.5 `lfrs-reviews`
 
@@ -509,7 +491,9 @@ Same uniqueness pattern as likes.
 | `status`           | `select` (`pending` \| `approved` \| `rejected`) | Only if `reviewModeration` enabled | Moderation status                                                       |
 | `repliesCount`     | `number`                                         | Always                             | Cached count of replies (default: 0)                                    |
 
-**Compound uniqueness**: One review per user per target doc, unless `allowMultipleReviews` is enabled for the target collection, in which case users can post multiple reviews.
+**Compound uniqueness**: One review per user per target doc (or one rating per user per target doc if reviews are disabled and ratings are enabled), unless `allowMultipleReviews` is enabled for the target collection, in which case users can post multiple reviews.
+
+**Review Reactions**: When `enableReviewReactions` is globally enabled, the reviews collection includes `likesCount` and `dislikesCount` fields representing cached reaction aggregates.
 
 ### 4.6 `lfrs-replies`
 
@@ -525,6 +509,8 @@ Only created if **any** collection enables `replies`.
 **Threading model**: One level deep only — replies reference a review, not other replies. This keeps the UI clean and avoids deeply nested threads.
 
 **No uniqueness constraint**: A user can post multiple replies to the same review (unlike likes/ratings which are one-per-user).
+
+**Reply Reactions**: When `enableReviewReactions` is globally enabled, the replies collection includes `likesCount` and `dislikesCount` fields representing cached reaction aggregates.
 
 **Access**: Same access rules as the parent review's collection — the `replies` feature access on the target collection controls who can reply.
 
@@ -965,8 +951,7 @@ src/
 │   ├── likes.ts                      # lfrs-likes collection
 │   ├── dislikes.ts                   # lfrs-dislikes collection (conditional)
 │   ├── favourites.ts                 # lfrs-favourites collection
-│   ├── ratings.ts                    # lfrs-ratings collection
-│   ├── reviews.ts                    # lfrs-reviews collection
+│   ├── reviews.ts                    # lfrs-reviews collection (stores both reviews and ratings)
 │   └── replies.ts                    # lfrs-replies collection (conditional)
 │
 ├── fields/                           # Field injection helpers
@@ -987,8 +972,7 @@ src/
 │   ├── like.ts                       # POST /api/lfrs/like
 │   ├── dislike.ts                    # POST /api/lfrs/dislike
 │   ├── favourite.ts                  # POST /api/lfrs/favourite
-│   ├── rate.ts                       # POST /api/lfrs/rate
-│   ├── review.ts                     # POST /api/lfrs/review
+│   ├── review.ts                     # POST /api/lfrs/review (handles reviews & ratings)
 │   ├── reply.ts                      # POST/DELETE /api/lfrs/reply
 │   ├── status.ts                     # GET  /api/lfrs/status
 │   ├── interactions.ts               # GET  /api/lfrs/interactions
@@ -1052,7 +1036,7 @@ src/
 - [x] Create `lfrs-likes` collection config
 - [x] Create `lfrs-dislikes` collection config (conditional — only if any collection enables dislikes)
 - [x] Create `lfrs-favourites` collection config
-- [x] Create `lfrs-ratings` collection config (with score validation)
+- [x] Create `lfrs-reviews` collection config (stores scores/ratings directly)
 - [x] Implement `resolveReviewMedia` utility (validate upload collection exists at build time)
 - [x] Implement `matchMimeType` utility (glob-style mimetype matching)
 - [x] Create `lfrs-reviews` collection config:
@@ -1090,8 +1074,7 @@ src/
 - [x] Implement `POST /api/lfrs/like` (toggle, with mutual exclusivity for dislikes)
 - [x] Implement `POST /api/lfrs/dislike` (toggle, with mutual exclusivity for likes)
 - [x] Implement `POST /api/lfrs/favourite` (toggle)
-- [x] Implement `POST /api/lfrs/rate` (upsert)
-- [x] Implement `POST /api/lfrs/review` (upsert)
+- [x] Implement `POST /api/lfrs/review` (upsert for both reviews and ratings)
 - [x] Implement `POST /api/lfrs/reply` (create)
 - [x] Implement `DELETE /api/lfrs/reply` (delete own or admin)
 - [x] Implement `GET /api/lfrs/status` (current user state, includes dislike/reply flags)

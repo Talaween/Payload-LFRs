@@ -49,7 +49,7 @@ export interface LfrsComposeReviewProps {
  * - Displays error messages and submission states.
  * 
  * **User Interaction:**
- * - **Rating Selection:** Users can click icons (e.g., stars or hearts) to choose their rating (if `enableReviewRating` is true).
+ * - **Rating Selection:** Users can click icons (e.g., stars or hearts) to choose their rating (if `ratingsEnabled` is true).
  * - **Input Fields:** Users can enter an optional title and a required review body description.
  * - **Submitting:** Submitting the form triggers a POST request to `${apiBase}/lfrs/review`.
  * - **Canceling:** Users can abort composition by clicking the "Cancel" button (if `onCancel` is provided).
